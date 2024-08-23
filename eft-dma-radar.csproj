@@ -86,13 +86,4 @@
         </EmbeddedResource>
     </ItemGroup>
 
-    <ItemGroup>
-        <None Update="Properties\appsettings.json">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="Properties\CloudflareConfig.json">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
-
 </Project>
