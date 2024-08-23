@@ -171,6 +171,9 @@
             swPlayerInfoAmmoType = new MaterialSkin.Controls.MaterialSwitch();
             btnTriggerUnityCrash = new MaterialSkin.Controls.MaterialButton();
             swThirdperson = new MaterialSkin.Controls.MaterialSwitch();
+            swStartWebServer = new MaterialSkin.Controls.MaterialSwitch();
+            hostnameTextBox = new MaterialSkin.Controls.MaterialTextBox2();
+            materialSaveBtn = new MaterialSkin.Controls.MaterialButton();
             swContainers = new MaterialSkin.Controls.MaterialSwitch();
             swLooseLoot = new MaterialSkin.Controls.MaterialSwitch();
             sldrThermalColorCoefficient = new MaterialSkin.Controls.MaterialSlider();
@@ -213,6 +216,8 @@
             tabSelector = new MaterialSkin.Controls.MaterialTabSelector();
             tabControlSettings = new MaterialSkin.Controls.MaterialTabControl();
             tabSettingsGeneral = new TabPage();
+            materialCard1 = new MaterialSkin.Controls.MaterialCard();
+            materialLabel1 = new MaterialSkin.Controls.MaterialLabel();
             mcSettingsGeneralPlayerInformation = new MaterialSkin.Controls.MaterialCard();
             lblSettingsGeneralPlayerInformation = new MaterialSkin.Controls.MaterialLabel();
             mcSettingsGeneralUI = new MaterialSkin.Controls.MaterialCard();
@@ -373,6 +378,7 @@
             lstLootFilterEntries = new MaterialSkin.Controls.MaterialListView();
             colLootFilterItemName = new ColumnHeader();
             colLootFilterItemValue = new ColumnHeader();
+            WebRadar = new TabPage();
             iconList = new ImageList(components);
             tabControlMain.SuspendLayout();
             tabRadar.SuspendLayout();
@@ -384,6 +390,7 @@
             tabSettings.SuspendLayout();
             tabControlSettings.SuspendLayout();
             tabSettingsGeneral.SuspendLayout();
+            materialCard1.SuspendLayout();
             mcSettingsGeneralPlayerInformation.SuspendLayout();
             mcSettingsGeneralUI.SuspendLayout();
             mcSettingsGeneralRadar.SuspendLayout();
@@ -3264,6 +3271,77 @@
             toolTip.SetToolTip(swThirdperson, "Enables thirdperson");
             swThirdperson.UseVisualStyleBackColor = true;
             swThirdperson.CheckedChanged += swThirdperson_CheckedChanged;
+                    // 
+            // swStartWebServer
+            // 
+            swStartWebServer.Depth = 0;
+            swStartWebServer.Font = new Font("Segoe UI", 9F);
+            swStartWebServer.Location = new Point(207, 57);
+            swStartWebServer.Margin = new Padding(0);
+            swStartWebServer.MouseLocation = new Point(-1, -1);
+            swStartWebServer.MouseState = MaterialSkin.MouseState.HOVER;
+            swStartWebServer.Name = "swStartWebServer";
+            swStartWebServer.Ripple = true;
+            swStartWebServer.Size = new Size(197, 28);
+            swStartWebServer.TabIndex = 6;
+            swStartWebServer.Text = "Start/Stop Server";
+            toolTip.SetToolTip(swStartWebServer, "Starts and Stops WebServer to host WebRadar on localhost.");
+            swStartWebServer.UseVisualStyleBackColor = true;
+            swStartWebServer.CheckedChanged += swStartWebServer_CheckedChanged;
+            // 
+            // hostnameTextBox
+            // 
+            hostnameTextBox.AnimateReadOnly = false;
+            hostnameTextBox.BackgroundImageLayout = ImageLayout.None;
+            hostnameTextBox.CharacterCasing = CharacterCasing.Normal;
+            hostnameTextBox.Depth = 0;
+            hostnameTextBox.Font = new Font("Microsoft Sans Serif", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            hostnameTextBox.HideSelection = true;
+            hostnameTextBox.Hint = "Hostname";
+            hostnameTextBox.LeadingIcon = null;
+            hostnameTextBox.Location = new Point(207, 110);
+            hostnameTextBox.MaxLength = 32767;
+            hostnameTextBox.MouseState = MaterialSkin.MouseState.OUT;
+            hostnameTextBox.Name = "hostnameTextBox";
+            hostnameTextBox.PasswordChar = '\0';
+            hostnameTextBox.PrefixSuffixText = null;
+            hostnameTextBox.ReadOnly = false;
+            hostnameTextBox.RightToLeft = RightToLeft.No;
+            hostnameTextBox.SelectedText = "";
+            hostnameTextBox.SelectionLength = 0;
+            hostnameTextBox.SelectionStart = 0;
+            hostnameTextBox.ShortcutsEnabled = true;
+            hostnameTextBox.Size = new Size(184, 36);
+            hostnameTextBox.TabIndex = 34;
+            hostnameTextBox.TabStop = false;
+            hostnameTextBox.TextAlign = HorizontalAlignment.Left;
+            toolTip.SetToolTip(hostnameTextBox, "Use your public IP or Domain that has a DNS Pointing to your IP");
+            hostnameTextBox.TrailingIcon = null;
+            hostnameTextBox.UseSystemPasswordChar = false;
+            hostnameTextBox.UseTallSize = false;
+            // 
+            // materialSaveBtn
+            // 
+            materialSaveBtn.AutoSize = false;
+            materialSaveBtn.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            materialSaveBtn.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            materialSaveBtn.Depth = 0;
+            materialSaveBtn.Font = new Font("Segoe UI", 8F);
+            materialSaveBtn.HighEmphasis = true;
+            materialSaveBtn.Icon = null;
+            materialSaveBtn.Location = new Point(412, 110);
+            materialSaveBtn.Margin = new Padding(4, 6, 4, 6);
+            materialSaveBtn.MouseState = MaterialSkin.MouseState.HOVER;
+            materialSaveBtn.Name = "materialSaveBtn";
+            materialSaveBtn.NoAccentTextColor = Color.Empty;
+            materialSaveBtn.Size = new Size(103, 36);
+            materialSaveBtn.TabIndex = 36;
+            materialSaveBtn.Text = "Apply Hostname";
+            toolTip.SetToolTip(materialSaveBtn, "Manually triggers radar restart");
+            materialSaveBtn.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            materialSaveBtn.UseAccentColor = true;
+            materialSaveBtn.UseVisualStyleBackColor = true;
+            materialSaveBtn.Click += materialSaveBtn_Click;    
             // 
             // swContainers
             // 
@@ -3354,6 +3432,7 @@
             tabControlMain.Controls.Add(tabPlayerLoadouts);
             tabControlMain.Controls.Add(tabWatchlist);
             tabControlMain.Controls.Add(tabLootFilter);
+            tabControlMain.Controls.Add(WebRadar);
             tabControlMain.Depth = 0;
             tabControlMain.Dock = DockStyle.Fill;
             tabControlMain.ImageList = iconList;
@@ -3863,6 +3942,7 @@
             // tabSettingsGeneral
             // 
             tabSettingsGeneral.BackColor = Color.White;
+            tabSettingsGeneral.Controls.Add(materialCard1);
             tabSettingsGeneral.Controls.Add(mcSettingsGeneralPlayerInformation);
             tabSettingsGeneral.Controls.Add(mcSettingsGeneralUI);
             tabSettingsGeneral.Controls.Add(mcSettingsGeneralRadar);
@@ -3873,6 +3953,38 @@
             tabSettingsGeneral.Size = new Size(1334, 640);
             tabSettingsGeneral.TabIndex = 0;
             tabSettingsGeneral.Text = "General";
+                    // 
+            // materialCard1
+            // 
+            materialCard1.BackColor = Color.FromArgb(255, 255, 255);
+            materialCard1.Controls.Add(materialSaveBtn);
+            materialCard1.Controls.Add(hostnameTextBox);
+            materialCard1.Controls.Add(materialLabel1);
+            materialCard1.Controls.Add(swStartWebServer);
+            materialCard1.Depth = 0;
+            materialCard1.ForeColor = Color.FromArgb(222, 0, 0, 0);
+            materialCard1.Location = new Point(15, 395);
+            materialCard1.Margin = new Padding(14);
+            materialCard1.MouseState = MaterialSkin.MouseState.HOVER;
+            materialCard1.Name = "materialCard1";
+            materialCard1.Padding = new Padding(14);
+            materialCard1.Size = new Size(633, 202);
+            materialCard1.TabIndex = 33;
+            // 
+            // materialLabel1
+            // 
+            materialLabel1.AutoSize = true;
+            materialLabel1.Depth = 0;
+            materialLabel1.Font = new Font("Roboto Medium", 20F, FontStyle.Bold, GraphicsUnit.Pixel);
+            materialLabel1.FontType = MaterialSkin.MaterialSkinManager.fontType.H6;
+            materialLabel1.HighEmphasis = true;
+            materialLabel1.Location = new Point(17, 12);
+            materialLabel1.MouseState = MaterialSkin.MouseState.HOVER;
+            materialLabel1.Name = "materialLabel1";
+            materialLabel1.Size = new Size(98, 24);
+            materialLabel1.TabIndex = 33;
+            materialLabel1.Text = "Web Radar";
+            materialLabel1.UseAccent = true;    
             // 
             // mcSettingsGeneralPlayerInformation
             // 
@@ -6197,6 +6309,16 @@
             // 
             colLootFilterItemValue.Text = "Value";
             colLootFilterItemValue.Width = 80;
+                    // 
+            // WebRadar
+            // 
+            WebRadar.Location = new Point(4, 39);
+            WebRadar.Name = "WebRadar";
+            WebRadar.Padding = new Padding(3);
+            WebRadar.Size = new Size(1342, 703);
+            WebRadar.TabIndex = 5;
+            WebRadar.Text = "WebRadar";
+            WebRadar.UseVisualStyleBackColor = true;    
             // 
             // iconList
             // 
@@ -6237,6 +6359,8 @@
             tabSettings.ResumeLayout(false);
             tabControlSettings.ResumeLayout(false);
             tabSettingsGeneral.ResumeLayout(false);
+            materialCard1.ResumeLayout(false);
+            materialCard1.PerformLayout();
             mcSettingsGeneralPlayerInformation.ResumeLayout(false);
             mcSettingsGeneralPlayerInformation.PerformLayout();
             mcSettingsGeneralUI.ResumeLayout(false);
@@ -6361,6 +6485,8 @@
         private MaterialSkin.Controls.MaterialButton btnToggleMap;
         private MaterialSkin.Controls.MaterialCard mcSettingsGeneralUI;
         private MaterialSkin.Controls.MaterialSwitch swExfilNames;
+
+        private MaterialSkin.Controls.MaterialSwitch swStartWebServer;
         private MaterialSkin.Controls.MaterialSwitch swQuestHelper;
         private MaterialSkin.Controls.MaterialSwitch swHoverArmor;
         private MaterialSkin.Controls.MaterialSwitch swAimview;
@@ -6679,6 +6805,11 @@
         private MaterialSkin.Controls.MaterialLabel lblPlayerLoadoutsAI;
         private FlowLayoutPanel flpPlayerLoadoutsAI;
         private MaterialSkin.Controls.MaterialSwitch swThirdperson;
+        private TabPage WebRadar;
+        private MaterialSkin.Controls.MaterialCard materialCard1;
+        private MaterialSkin.Controls.MaterialTextBox2 hostnameTextBox;
+        private MaterialSkin.Controls.MaterialLabel materialLabel1;
+        private MaterialSkin.Controls.MaterialButton materialSaveBtn;
         private MaterialSkin.Controls.MaterialCard mcSettingsLootContainers;
         private MaterialSkin.Controls.MaterialSwitch swContainers;
         private MaterialSkin.Controls.MaterialLabel lblSettingsLootContainers;

@@ -69,6 +69,8 @@ namespace eft_dma_radar
         private string _lastFactionEntry;
         private List<Player> _watchlistMatchPlayers = new();
 
+        private IHost _webHost;
+
         private const int ZOOM_INTERVAL = 10;
         private int targetZoomValue = 0;
         private System.Windows.Forms.Timer zoomTimer;
@@ -344,6 +346,58 @@ namespace eft_dma_radar
 
             UpdateLootFilters();
         }
+        private void swStartWebServer_CheckedChanged(object sender, EventArgs e)
+        {
+            Program.Log($"Switch CheckedChanged event fired. Checked: {swStartWebServer.Checked}");
+            if (swStartWebServer.Checked)
+            {
+                // Start the server
+                Program.Log("Attempting to start the web server...");
+                StartWebServer();
+            }
+            else
+            {
+                // Stop the server
+                Program.Log("Attempting to stop the web server...");
+                StopWebServer();
+            }
+        }
+
+        private void StartWebServer()
+        {
+            if (_webHost == null)
+            {
+                try
+                {
+                    _webHost = Program.CreateHostBuilder(null).Build();
+                    var serverTask = new Task(() => _webHost.Run());
+                    serverTask.Start();
+                    Program.Log("Web server started.");
+                }
+                catch (Exception ex)
+                {
+                    Program.Log($"Error starting web server: {ex.Message}");
+                }
+            }
+        }
+
+        private async void StopWebServer()
+        {
+            if (_webHost != null)
+            {
+                try
+                {
+                    await _webHost.StopAsync(); // Use await instead of .Wait() to avoid blocking the UI thread
+                    _webHost.Dispose();
+                    _webHost = null;
+                    Program.Log("Web server stopped.");
+                }
+                catch (Exception ex)
+                {
+                    Program.Log($"Error stopping web server: {ex.Message}");
+                }
+            }
+        }
 
         private void InitiateFactions()
         {
@@ -511,6 +565,7 @@ namespace eft_dma_radar
             swExfilNames.Checked = _config.ExfilNames;
             swHoverArmor.Checked = _config.HoverArmor;
             txtTeammateID.Text = _config.PrimaryTeammateId;
+            hostnameTextBox.Text = _config.Hostname;
             sldrZoomSensitivity.Value = _config.ZoomSensitivity;
 
             sldrUIScale.Value = _config.UIScale;
@@ -2203,6 +2258,37 @@ namespace eft_dma_radar
         #endregion
 
         #region Event Handlers
+
+        private void materialSaveBtn_Click(object sender, EventArgs e)
+        {
+            
+            // Update the Config object with the new hostname
+            _config.Hostname = hostnameTextBox.Text;
+            Program.Log("Hostname set to: " + _config.Hostname); // Debug line
+
+            // Save the Config object to the configuration file
+            Config.SaveConfig(_config);
+
+            // Provide feedback to the user
+            Program.Log("Hostname saved successfully!");
+        }
+
+
+        private void materialSaveBtn_Click(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                // Update the Config object with the new hostname
+                _config.Hostname = hostnameTextBox.Text;
+                Program.Log("Hostname set to: " + _config.Hostname); // Debug line
+
+                // Save the Config object to the configuration file
+                Config.SaveConfig(_config);
+
+                // Provide feedback to the user
+                Program.Log("Hostname saved successfully!");
+            }
+        }
         private void btnToggleMapFree_Click(object sender, EventArgs e)
         {
             if (_isFreeMapToggled)

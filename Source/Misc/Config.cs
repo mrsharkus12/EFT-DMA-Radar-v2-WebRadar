@@ -191,6 +191,9 @@ namespace eft_dma_radar
 
         [JsonPropertyName("zoomSensitivity")]
         public int ZoomSensitivity { get; set; }
+        
+        [JsonPropertyName("hostname")]
+        public string Hostname { get; set; }          
         #endregion
 
         #region Json Ignore
@@ -396,6 +399,7 @@ namespace eft_dma_radar
 
         public Config()
         {
+            Hostname = "localhost";
             Aimview = false;
             AimViewFOV = 30;
             AutoLootRefresh = false;
