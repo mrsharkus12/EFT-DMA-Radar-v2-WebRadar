@@ -1,8 +1,9 @@
 
+
 # EFT-DMA-Radar-v2
 
 ## Description
-EFT DMA Radar is a radar tool designed for Escape from Tarkov that provides real-time tracking of players and items on a 2D map.
+EFT DMA Radar is a radar tool designed for Escape from Tarkov that provides real-time tracking of players and items on a 2D map. This fork of the radar adds ability to host a WebRadar alongside EFT DMA Radar. The webradar by default is hosted on localhost and can be accessed going to localhost in your browser. You can change the hostname/ip to your public ip or domain that points to your ip and share the link with your friends. For that to work you need to port forward port 80 in windows and your router.
 
 ## Usage
 1. Clone the repository.
