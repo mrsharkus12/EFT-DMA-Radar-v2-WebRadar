@@ -42,10 +42,10 @@ This project builds upon the original work created by [Git link](https://github.
 ## Preview
 ![image](https://github.com/xx0m/EFT-DMA-Radar-v2/assets/63579245/9e55038f-8095-4680-9d3f-b14f44046276)
 ![image](https://github.com/xx0m/EFT-DMA-Radar-v2/assets/63579245/7a1f9f18-6373-4386-bd42-6666c04aa9f3)
+![Screenshot 2024-08-22 225030](https://github.com/user-attachments/assets/8707f371-95a6-4b12-9dc9-600f36094128)
 ![image](https://github.com/xx0m/EFT-DMA-Radar-v2/assets/63579245/910ab73b-c633-4dc8-9753-a0f74b34b976)
 ![image](https://github.com/xx0m/EFT-DMA-Radar-v2/assets/63579245/9c7c5388-9e9b-4895-bd3a-2c8e137d17e6)
 ![Screenshot 2024-08-22 224828](https://github.com/user-attachments/assets/c50dae4b-ee1f-4970-b2d6-1a85638fcc70)
 ![Screenshot 2024-08-22 224804](https://github.com/user-attachments/assets/24984699-579d-48a5-92e9-6b66754d903e)
 ![Screenshot 2024-08-22 224751](https://github.com/user-attachments/assets/297c8847-4402-4434-a343-e4c50d842c23)
 ![Screenshot 2024-08-22 224741](https://github.com/user-attachments/assets/dd971770-cd78-48dd-85ec-ba29a3f42219)
-![Screenshot 2024-08-22 225030](https://github.com/user-attachments/assets/8707f371-95a6-4b12-9dc9-600f36094128)
