@@ -18,7 +18,12 @@ namespace eft_dma_radar.Controllers
         {
             try
             {
-                var players = Memory.Players; // Assuming Memory is a static class managing game data
+                if (!Memory.InGame)
+                {
+                    return StatusCode(503, "Game has ended. Waiting for new game to start.");
+                }
+
+                var players = Memory.Players;
                 if (players == null || !players.Any())
                 {
                     return NotFound("No players found.");
@@ -69,11 +74,15 @@ namespace eft_dma_radar.Controllers
         {
             try
             {
-                var mapName = Memory.MapNameFormatted; // Assuming this is the method to get the current map name
+                if (!Memory.InGame)
+                {
+                    return StatusCode(503, "Game has ended. Waiting for new game to start.");
+                }
+
+                var mapName = Memory.MapNameFormatted;
                 var mapState = new
                 {
                     MapName = mapName,
-                    // Include other relevant map details here
                 };
 
                 return Ok(mapState);
@@ -113,6 +122,11 @@ namespace eft_dma_radar.Controllers
         {
             try
             {
+                if (!Memory.InGame)
+                {
+                    return StatusCode(503, "Game has ended. Waiting for new game to start.");
+                }
+
                 if (Memory.Loot == null || Memory.Loot.Loot == null)
                 {
                     Console.WriteLine("Loot data is still loading.");
@@ -152,7 +166,11 @@ namespace eft_dma_radar.Controllers
         {
             try
             {
-                // Ensure the loot manager has been initialized and contains items
+                if (!Memory.InGame)
+                {
+                    return StatusCode(503, "Game has ended. Waiting for new game to start.");
+                }
+
                 if (Memory.Loot == null || !Memory.Loot.HasCachedItems)
                 {
                     return NotFound("Loot data is not available.");
@@ -166,11 +184,11 @@ namespace eft_dma_radar.Controllers
                         container.Value,
                         container.Important, 
                         Position = new
-                    {
-                        X = container.Position.X,
-                        Y = container.Position.Y,
-                        Z = container.Position.Z
-                    }
+                        {
+                            X = container.Position.X,
+                            Y = container.Position.Y,
+                            Z = container.Position.Z
+                        }
                     })
                     .ToList();
 
@@ -188,7 +206,11 @@ namespace eft_dma_radar.Controllers
         {
             try
             {
-                // Ensure the loot manager has been initialized and contains items
+                if (!Memory.InGame)
+                {
+                    return StatusCode(503, "Game has ended. Waiting for new game to start.");
+                }
+
                 if (Memory.Loot == null || !Memory.Loot.HasCachedItems)
                 {
                     return NotFound("Loot data is not available.");
@@ -201,12 +223,12 @@ namespace eft_dma_radar.Controllers
                         corpse.Items,
                         corpse.Value,
                         corpse.Important,
-                    Position = new
-                    {
-                        X = corpse.Position.X,
-                        Y = corpse.Position.Y,
-                        Z = corpse.Position.Z
-                    }
+                        Position = new
+                        {
+                            X = corpse.Position.X,
+                            Y = corpse.Position.Y,
+                            Z = corpse.Position.Z
+                        }
                     })
                     .ToList();
 
@@ -218,20 +240,24 @@ namespace eft_dma_radar.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
         [HttpGet("loot/quests")]
         public IActionResult GetQuestItemsAndZones()
         {
             try
             {
-                // Ensure the quest manager is initialized and contains quest items and zones
+                if (!Memory.InGame)
+                {
+                    return StatusCode(503, "Game has ended. Waiting for new game to start.");
+                }
+
                 if (Memory.QuestManager == null || Memory.QuestManager.QuestItems == null || Memory.QuestManager.QuestZones == null)
                 {
                     return NotFound("Quest items or zones data is not available.");
                 }
         
-                // Process Quest Items
                 var questItems = Memory.QuestManager.QuestItems
-                    .Where(item => item.Position.X != 0) // Filter out items with default (0,0,0) positions
+                    .Where(item => item.Position.X != 0) 
                     .Select(item => new
                     {
                         item.Id,
@@ -248,9 +274,8 @@ namespace eft_dma_radar.Controllers
                     })
                     .ToList();
         
-                // Process Quest Zones
                 var questZones = Memory.QuestManager.QuestZones
-                    .Where(zone => zone.Position.X != 0) // Filter out zones with default (0,0,0) positions
+                    .Where(zone => zone.Position.X != 0)
                     .Select(zone => new
                     {
                         zone.ID,
@@ -280,7 +305,12 @@ namespace eft_dma_radar.Controllers
         {
             try
             {
-                var exfils = Memory.Exfils; // Assuming Memory.Exfils returns the current exfil data
+                if (!Memory.InGame)
+                {
+                    return StatusCode(503, "Game has ended. Waiting for new game to start.");
+                }
+
+                var exfils = Memory.Exfils;
                 if (exfils == null || !exfils.Any())
                 {
                     return NotFound("No exfil points found.");
@@ -307,13 +337,11 @@ namespace eft_dma_radar.Controllers
             }
         }
 
-
         [HttpGet("/ws/connect")]
         public async Task Connect()
         {
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
-                // Fetch the game state
                 var gameState = new
                 {
                     InGame = Memory.InGame,
@@ -321,7 +349,6 @@ namespace eft_dma_radar.Controllers
                     IsScav = Memory.IsScav
                 };
 
-                // Only proceed if the game is in progress
                 if (gameState.InGame)
                 {
                     Console.WriteLine("Starting WebSocket");
@@ -331,7 +358,7 @@ namespace eft_dma_radar.Controllers
                 else
                 {
                     HttpContext.Response.StatusCode = 503; // Service Unavailable
-                    Console.WriteLine("Stopping WebSocket" + gameState);
+                    Console.WriteLine("Stopping WebSocket: Game not in progress");
                 }
             }
             else
@@ -344,6 +371,19 @@ namespace eft_dma_radar.Controllers
         {
             while (webSocket.State == WebSocketState.Open)
             {
+                if (!Memory.InGame)
+                {
+                    var endGameMessage = new { message = "Game has ended. Waiting for new game to start." };
+                    var endGameJson = JsonSerializer.Serialize(endGameMessage);
+                    var endGameBytes = Encoding.UTF8.GetBytes(endGameJson);
+                    var endGameBuffer = new ArraySegment<byte>(endGameBytes);
+        
+                    await webSocket.SendAsync(endGameBuffer, WebSocketMessageType.Text, true, CancellationToken.None);
+                    break; // Exit the loop to close the connection
+                }
+        
+                var containerSettings = Program.Config.DefaultContainerSettings;
+        
                 var updateData = new
                 {
                     players = Memory.Players.Values.Select(player => new
@@ -357,7 +397,7 @@ namespace eft_dma_radar.Controllers
                         player.KDA,
                         player.ProfileID,
                         player.AccountID,
-                        player.Type, // Include the Player Type
+                        player.Type,
                         Gear = player.Gear.Select(g => new
                         {
                             Slot = g.Key,
@@ -373,11 +413,11 @@ namespace eft_dma_radar.Controllers
                         },
                         Rotation = new
                         {
-                            Yaw = player.Rotation.X,  // Horizontal rotation
-                            Pitch = player.Rotation.Y // Vertical rotation
+                            Yaw = player.Rotation.X,
+                            Pitch = player.Rotation.Y
                         }
                     }).ToList(),
-
+        
                     loot = Memory.Loot.Loot.OfType<LootItem>().Select(l => new
                     {
                         l.Name,
@@ -385,49 +425,50 @@ namespace eft_dma_radar.Controllers
                         l.Value,
                         Position = new { l.Position.X, l.Position.Y, l.Position.Z }
                     }).ToList(),
-
+        
                     exfils = Memory.Exfils.Select(exfil => new
                     {
                         exfil.Name,
                         exfil.Status,
                         Position = new { exfil.Position.X, exfil.Position.Y, exfil.Position.Z }
                     }).ToList(),
-
-                    //corpses = Memory.Loot.Loot.OfType<LootCorpse>().Select(corpse => new
-                    //{
-                    //    corpse.Name,
-                    //    corpse.Items,
-                    //    corpse.Value,
-                    //    corpse.Important,
-                    //    Position = new
-                    //    {
-                    //        X = corpse.Position.X,
-                    //        Y = corpse.Position.Y,
-                    //        Z = corpse.Position.Z
-                    //    }
-                    //}).ToList(),
-//
-                    //containers = Memory.Loot.Loot.OfType<LootContainer>().Select(container => new
-                    //{
-                    //    container.Name,
-                    //    container.Items,
-                    //    container.Value,
-                    //    container.Important,
-                    //    Position = new
-                    //    {
-                    //        X = container.Position.X,
-                    //        Y = container.Position.Y,
-                    //        Z = container.Position.Z
-                    //    }
-                    //}).ToList()
+        
+                    corpses = Memory.Loot.Loot.OfType<LootCorpse>().Select(corpse => new
+                    {
+                        corpse.Name,
+                        corpse.Items,
+                        corpse.Value,
+                        corpse.Important,
+                        Position = new
+                        {
+                            X = corpse.Position.X,
+                            Y = corpse.Position.Y,
+                            Z = corpse.Position.Z
+                        }
+                    }).ToList(),
+        
+                    containers = containerSettings["Enabled"]
+                        ? Memory.Loot.Loot.OfType<LootContainer>().Select(container => new
+                        {
+                            container.Name,
+                            container.Items,
+                            container.Value,
+                            container.Important,
+                            Position = new
+                            {
+                                X = container.Position.X,
+                                Y = container.Position.Y,
+                                Z = container.Position.Z
+                            }
+                        }).ToList()
+                        : null
                 };
-
-                var jsonString = JsonSerializer.Serialize(updateData);
-                var bytes = Encoding.UTF8.GetBytes(jsonString);
-                var buffer = new ArraySegment<byte>(bytes);
-
-                await webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
-
+        
+                var updateJson = JsonSerializer.Serialize(updateData);
+                var updateBytes = Encoding.UTF8.GetBytes(updateJson);
+                var updateBuffer = new ArraySegment<byte>(updateBytes);
+        
+                await webSocket.SendAsync(updateBuffer, WebSocketMessageType.Text, true, CancellationToken.None);
                 await Task.Delay(100); // Adjust the delay to control the update frequency
             }
         }

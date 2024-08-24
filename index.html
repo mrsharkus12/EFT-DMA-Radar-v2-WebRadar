@@ -12,6 +12,7 @@
             padding: 0;
             overflow: hidden;
             background-color: #000;
+            font-family: 'Arial', sans-serif;
         }
 
         #mapContainer {
@@ -32,18 +33,20 @@
             position: absolute;
             left: 0;
             top: 0;
-            width: 250px;
+            width: 300px;
             height: 100vh;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(30, 30, 30, 0.95);
             color: white;
-            padding: 10px;
+            padding: 20px;
             z-index: 10;
-            display: none;
             overflow-y: auto;
+            box-shadow: 3px 0 5px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
         }
 
         #sidebar.open {
-            display: block;
+            transform: translateX(0);
         }
 
         #toggleSidebar {
@@ -53,8 +56,87 @@
             background-color: #007bff;
             color: #fff;
             border: none;
-            padding: 10px;
+            padding: 10px 15px;
             cursor: pointer;
+            border-radius: 4px;
+            z-index: 20;
+            box-shadow: 0px 0px 10px rgba(0, 123, 255, 0.5);
+            transition: background-color 0.3s;
+        }
+
+        #toggleSidebar:hover {
+            background-color: #0056b3;
+        }
+
+        .tabButton {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .tabButton.active,
+        .tabButton:hover {
+            background-color: #0056b3;
+        }
+
+        .tabContent {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .tabContent.active {
+            display: block;
+        }
+
+        #containerSettingsModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #containerSettingsContent {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+
+        .containerGrid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .containerGrid label {
+            background-color: #444;
+            padding: 10px;
+            border-radius: 4px;
+            display: block;
+            cursor: pointer;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        .containerGrid label:hover {
+            background-color: #555;
         }
 
         #playerInfo {
@@ -68,38 +150,64 @@
             pointer-events: none;
         }
 
-        #playerInfo h3 {
-            margin: 0 0 5px;
-        }
-
-        #playerInfo p {
-            margin: 5px 0;
-        }
-
-        .tabButton {
+        #closeModal {
             background-color: #007bff;
             color: white;
             border: none;
-            padding: 10px;
+            padding: 10px 15px;
             cursor: pointer;
-            width: 100%;
-            text-align: left;
-            margin-bottom: 5px;
+            border-radius: 4px;
+            margin-top: 20px;
+            display: block;
+            text-align: center;
+            transition: background-color 0.3s;
         }
 
-        .tabButton.active {
+        #closeModal:hover {
             background-color: #0056b3;
         }
 
-        .tabContent {
+        #mostValuableLootPopup {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 350px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 12px;
+            z-index: 200;
             display: none;
-            margin-top: 10px;
+            overflow-y: auto;
+            max-height: 200px;
         }
 
-        .tabContent.active {
-            display: block;
+        #mostValuableLootTable {
+            width: 100%;
+            border-collapse: collapse;
         }
 
+        #mostValuableLootTable th,
+        #mostValuableLootTable td {
+            border: 1px solid lightgrey;
+            padding: 8px;
+            text-align: left;
+        }
+
+        #playerStatsPopup {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 200;
+            display: none;
+        }
     </style>
 </head>
 
@@ -108,7 +216,7 @@
         <canvas id="radarCanvas"></canvas>
         <div id="playerInfo"></div>
         <button id="toggleSidebar">☰</button>
-        <div id="sidebar" class="open">
+        <div id="sidebar">
             <button id="Player" class="tabButton active">Player</button>
             <button id="Loot" class="tabButton">Loot</button>
             <button id="Misc" class="tabButton">Misc</button>
@@ -119,38 +227,93 @@
                 <label><input type="checkbox" id="showScavs" checked> Show Scavs</label><br>
                 <label><input type="checkbox" id="showBosses" checked> Show Bosses</label><br>
                 <label><input type="checkbox" id="showTeammates" checked> Show Teammates</label><br>
+                <label><input type="checkbox" id="showDeadBodies" checked> Show Dead Bodies</label><br>
                 <label>Selected Player:</label>
                 <select id="playerSelect"></select>
             </div>
 
-<div id="LootContent" class="tabContent">
-    <h2>Loot Settings</h2>
-    <label>Search Loot:</label>
-    <input type="text" id="lootSearch" placeholder="Search for loot..."><br>
-    <label>Minimum Loot Value:</label>
-    <input type="range" id="minLootValue" min="0" max="600000" step="1000" value="0">
-    <span id="minLootValueDisplay">0</span><br>
-    <label>Minimum Important Loot Price:</label>
-    <input type="number" id="importantLootPrice" value="60000"><br>
-    <label><input type="checkbox" id="showLoot" checked> Show Loot</label><br>
-</div>
+            <div id="LootContent" class="tabContent">
+                <h2>Loot Settings</h2>
+                <label>Search Loot:</label>
+                <input type="text" id="lootSearch" placeholder="Search for loot..."><br>
+                <label>Minimum Loot Value:</label>
+                <input type="range" id="minLootValue" min="0" max="600000" step="1000" value="0">
+                <span id="minLootValueDisplay">0</span><br>
+                <label>Minimum Important Loot Price:</label>
+                <input type="number" id="importantLootPrice" value="60000"><br>
+                <label><input type="checkbox" id="showLoot" checked> Show Loot</label><br>
+
+                <h3>Containers</h3>
+                <label><input type="checkbox" id="showContainers" checked> Show Containers</label><br>
+            </div>
 
             <div id="MiscContent" class="tabContent">
                 <h2>Misc Settings</h2>
                 <label><input type="checkbox" id="showExfils" checked> Show Exfils</label><br>
+                <label><input type="checkbox" id="showMostValuableLoot"> Show Most Valuable Loot</label><br>
+                <label><input type="checkbox" id="showPlayerStats"> Show Player Stats</label>
             </div>
         </div>
     </div>
 
+    <div id="containerSettingsModal">
+        <div id="containerSettingsContent">
+            <h2>Select Containers to Display</h2>
+            <div class="containerGrid">
+                <label><input type="checkbox" id="containerBankCashRegister" checked> Bank Cash Register</label>
+                <label><input type="checkbox" id="containerBankSafe" checked> Bank Safe</label>
+                <label><input type="checkbox" id="containerBuriedBarrelCache" checked> Buried Barrel Cache</label>
+                <label><input type="checkbox" id="containerCashRegister" checked> Cash Register</label>
+                <label><input type="checkbox" id="containerCivilianBody" checked> Civilian Body</label>
+                <label><input type="checkbox" id="containerDeadScav" checked> Dead Scav</label>
+                <label><input type="checkbox" id="containerDrawer" checked> Drawer</label>
+                <label><input type="checkbox" id="containerDuffleBag" checked> Duffle Bag</label>
+                <label><input type="checkbox" id="containerGrenadeBox" checked> Grenade Box</label>
+                <label><input type="checkbox" id="containerGroundCache" checked> Ground Cache</label>
+                <label><input type="checkbox" id="containerJacket" checked> Jacket</label>
+                <label><input type="checkbox" id="containerLabTechnicianBody" checked> Lab Technician Body</label>
+                <label><input type="checkbox" id="containerMedbagSMU06" checked> Medbag SMU06</label>
+                <label><input type="checkbox" id="containerMedicalSupplyCrate" checked> Medical Supply Crate</label>
+                <label><input type="checkbox" id="containerPCBlock" checked> PC Block</label>
+                <label><input type="checkbox" id="containerPMCBody" checked> PMC Body</label>
+                <label><input type="checkbox" id="containerRationSupplyCrate" checked> Ration Supply Crate</label>
+                <label><input type="checkbox" id="containerSafe" checked> Safe</label>
+                <label><input type="checkbox" id="containerScavBody" checked> Scav Body</label>
+                <label><input type="checkbox" id="containerShturmansStash" checked> Shturman's Stash</label>
+                <label><input type="checkbox" id="containerTechnicalSupplyCrate" checked> Technical Supply Crate</label>
+                <label><input type="checkbox" id="containerToolbox" checked> Toolbox</label>
+                <label><input type="checkbox" id="containerWeaponBox" checked> Weapon Box</label>
+                <label><input type="checkbox" id="containerWoodenAmmoBox" checked> Wooden Ammo Box</label>
+                <label><input type="checkbox" id="containerWoodenCrate" checked> Wooden Crate</label>
+            </div>
+            <button id="closeModal">Close</button>
+        </div>
+    </div>
+
+    <div id="mostValuableLootPopup">
+        <h3>Most Valuable Loot</h3>
+        <table id="mostValuableLootTable">
+            <tbody id="mostValuableLootList"></tbody>
+        </table>
+    </div>
+
+    <div id="playerStatsPopup">
+        <h3>Player Stats</h3>
+        <p>PMC: <span id="pmcCount">0</span></p>
+        <p>Scavs: <span id="scavCount">0</span></p>
+        <p>Bosses: <span id="bossCount">0</span></p>
+    </div>
+
     <script>
-		// Determine the server address dynamically
-		const serverAddress = '0.0.0.0'; // Replace with the actual IP address of your server
-		const apiPort = '80';  // The port where your API is running
-		const wsPort = '80';  // The port where your WebSocket server is running	
         const canvas = document.getElementById('radarCanvas');
         const ctx = canvas.getContext('2d');
         const mapContainer = document.getElementById('mapContainer');
         const playerInfo = document.getElementById('playerInfo');
+        const mostValuableLootPopup = document.getElementById('mostValuableLootPopup');
+        const playerStatsPopup = document.getElementById('playerStatsPopup');
+        const minLootValueDisplay = document.getElementById('minLootValueDisplay');
+        const minLootValueSlider = document.getElementById('minLootValue');
+
         let mapImage = new Image();
         let mapData = null;
         let aiFactions = null;
@@ -184,7 +347,6 @@
             context.translate(canvas.width / 2, canvas.height / 2);
             context.rotate(Math.PI);
             context.drawImage(arrowDownImage, -canvas.width / 2, -canvas.height / 2);
-            //arrowDownImage.src = canvas.toDataURL();
         };
 
         function resizeCanvas() {
@@ -231,42 +393,41 @@
             drawMap();
         });
 
-		// Function to load the map
-async function loadMap() {
-    try {
-        // Fetch the game state to get the map name
-        const response = await fetch("/api/game/map");
-        const gameState = await response.json();
-        const mapName = gameState.mapName;
+        minLootValueSlider.addEventListener('input', (e) => {
+            minLootValueDisplay.textContent = e.target.value;
+        });
 
-        if (!mapName) {
-            console.error('No map name found in game state.');
-            return;
+        async function loadMap() {
+            try {
+                const response = await fetch("/api/game/map");
+                const gameState = await response.json();
+                const mapName = gameState.mapName;
+
+                if (!mapName) {
+                    console.error('No map name found in game state.');
+                    return;
+                }
+
+                const mapResponse = await fetch(`/Maps/${mapName}.json`);
+                mapData = await mapResponse.json();
+
+                if (!mapData || !mapData.mapLayers) {
+                    console.error('Map data or map layers are not available.');
+                    return;
+                }
+
+                mapCenter = { x: mapData.x || 2315, y: mapData.y || 1448 };
+                scaleFactor = mapData.scale || 6.2;
+
+                currentMapName = mapName;
+
+                if (mapData.players && mapData.players.length > 0) {
+                    updateMapLayer();
+                }
+            } catch (error) {
+                console.error('Error loading map data:', error);
+            }
         }
-
-        // Fetch the corresponding map JSON file based on the mapName
-        const mapResponse = await fetch(`/Maps/${mapName}.json`);
-        mapData = await mapResponse.json();
-
-        if (!mapData || !mapData.mapLayers) {
-            console.error('Map data or map layers are not available.');
-            return;
-        }
-
-        // Set the map center and scale factor from the map data
-        mapCenter = { x: mapData.x || 2315, y: mapData.y || 1448 };
-        scaleFactor = mapData.scale || 6.2;
-
-        currentMapName = mapName;
-
-        // Update the map layer if players are available
-        if (mapData.players && mapData.players.length > 0) {
-            updateMapLayer();
-        }
-    } catch (error) {
-        console.error('Error loading map data:', error);
-    }
-}
 
         function updateMapLayer() {
             const playerSelect = document.getElementById('playerSelect');
@@ -309,20 +470,20 @@ async function loadMap() {
             }
         }
 
-async function getAndLoadMap() {
-    try {
-        const response = await fetch("/api/game/state");
-        const gameState = await response.json();
-        const mapName = gameState.mapName;
+        async function getAndLoadMap() {
+            try {
+                const response = await fetch("/api/game/state");
+                const gameState = await response.json();
+                const mapName = gameState.mapName;
 
-        if (mapName !== currentMapName) {
-            await loadMap(mapName);
-            currentMapName = mapName;
+                if (mapName !== currentMapName) {
+                    await loadMap(mapName);
+                    currentMapName = mapName;
+                }
+            } catch (error) {
+                console.error('Error loading game state:', error);
+            }
         }
-    } catch (error) {
-        console.error('Error loading game state:', error);
-    }
-}
 
         async function loadAiFactions() {
             try {
@@ -333,16 +494,27 @@ async function getAndLoadMap() {
             }
         }
 
-// Function to load exfils
-async function loadExfils() {
-    try {
-        const response = await fetch("/api/game/exfils");
-        exfils = await response.json();
-        drawMap();
-    } catch (error) {
-        console.error('Error loading exfils:', error);
-    }
-}
+        async function loadExfils() {
+            try {
+                const response = await fetch("/api/game/exfils");
+                exfils = await response.json();
+                drawMap();
+            } catch (error) {
+                console.error('Error loading exfils:', error);
+            }
+        }
+
+        async function loadContainers() {
+            if (containers.length === 0) {
+                try {
+                    const response = await fetch("/api/game/loot/containers");
+                    containers = await response.json();
+                    drawMap();
+                } catch (error) {
+                    console.error('Error loading containers:', error);
+                }
+            }
+        }
 
         function drawMap() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -356,308 +528,289 @@ async function loadExfils() {
             ctx.restore();
         }
 
-function drawPlayers() {
-    if (!mapData || !mapData.players) return;
+        function drawPlayers() {
+            if (!mapData || !mapData.players) return;
 
-    const selectedPlayer = mapData.players.find(player => player.ProfileID === selectedPlayerId);
+            const selectedPlayer = mapData.players.find(player => player.ProfileID === selectedPlayerId);
 
-    const showPlayers = document.getElementById('showPlayers').checked;
-    const showScavs = document.getElementById('showScavs').checked;
-    const showBosses = document.getElementById('showBosses').checked;
-    const showTeammates = document.getElementById('showTeammates').checked;
+            const showPlayers = document.getElementById('showPlayers').checked;
+            const showScavs = document.getElementById('showScavs').checked;
+            const showBosses = document.getElementById('showBosses').checked;
+            const showTeammates = document.getElementById('showTeammates').checked;
+            const showDeadBodies = document.getElementById('showDeadBodies').checked;
 
-    mapData.players.forEach(player => {
-        const isLocalPlayer = player.ProfileID === selectedPlayerId;
-        const isTeammate = player.Type === 'Teammate';
-        let shouldDrawPlayer = false;
-        let playerColor = 'yellow';
+            let pmcCount = 0;
+            let scavCount = 0;
+            let bossCount = 0;
 
-        if (isLocalPlayer || isTeammate) {
-            if (showTeammates) {
-                shouldDrawPlayer = true;
-                playerColor = 'green';
-            }
-        } else if (player.IsPMC) {
-            if (showPlayers) {
-                shouldDrawPlayer = true;
-                playerColor = 'blue';
-            }
-        } else if (isBoss(player.Name)) {
-            if (showBosses) {
-                shouldDrawPlayer = true;
-                playerColor = 'red';
-            }
-        } else if (isFollowerOrGuard(player.Name)) {
-            if (showScavs) {
-                shouldDrawPlayer = true;
-                playerColor = 'pink';
-            }
-        } else {
-            if (showScavs) {
-                shouldDrawPlayer = true;
-                playerColor = 'yellow';
-            }
-        }
+            mapData.players.forEach(player => {
+                const isLocalPlayer = player.ProfileID === selectedPlayerId;
+                const isTeammate = player.Type === 'Teammate';
+                const isAlive = player.IsAlive;
+                let shouldDrawPlayer = false;
+                let playerColor = 'yellow';
 
-        if (shouldDrawPlayer) {
-            const coords = convertPositionToMapCoords(player.Position);
-            if (coords) {
-                ctx.beginPath();
-                ctx.arc(coords.x, coords.y, 8 / zoom, 0, 2 * Math.PI);
-                ctx.fillStyle = playerColor;
-                ctx.fill();
-                ctx.strokeStyle = 'white';
-                ctx.lineWidth = 2 / zoom;
-                ctx.stroke();
-
-                let lineEndX, lineEndY;
-
-                if (selectedPlayer && player.ProfileID !== selectedPlayerId && isLookingAtPlayer(player, selectedPlayer)) {
-                    const distanceToSelected = calculateDistance(player.Position, selectedPlayer.Position);
-                    if (distanceToSelected <= 300) {
-                        const selectedCoords = convertPositionToMapCoords(selectedPlayer.Position);
-                        lineEndX = selectedCoords.x;
-                        lineEndY = selectedCoords.y;
-                    } else {
-                        drawNormalDirectionLine(player, coords);
+                if (isLocalPlayer || isTeammate) {
+                    if (showTeammates) {
+                        shouldDrawPlayer = true;
+                        playerColor = 'green';
                     }
+                } else if (player.IsPMC) {
+                    if (showPlayers) {
+                        shouldDrawPlayer = true;
+                        playerColor = 'blue';
+                    }
+                    pmcCount++;
+                } else if (isBoss(player.Name)) {
+                    if (showBosses) {
+                        shouldDrawPlayer = true;
+                        playerColor = 'red';
+                    }
+                    bossCount++;
+                } else if (isFollowerOrGuard(player.Name)) {
+                    if (showScavs) {
+                        shouldDrawPlayer = true;
+                        playerColor = 'pink';
+                    }
+                    scavCount++;
                 } else {
-                    drawNormalDirectionLine(player, coords);
+                    if (showScavs) {
+                        shouldDrawPlayer = true;
+                        playerColor = 'yellow';
+                    }
+                    scavCount++;
                 }
 
-                ctx.beginPath();
-                ctx.moveTo(coords.x, coords.y);
-                ctx.lineTo(lineEndX, lineEndY);
-                ctx.strokeStyle = 'white';
-                ctx.lineWidth = 2 / zoom;
-                ctx.stroke();
+                if (shouldDrawPlayer) {
+                    const coords = convertPositionToMapCoords(player.Position);
+                    if (coords) {
+                        if (isAlive) {
+                            ctx.beginPath();
+                            ctx.arc(coords.x, coords.y, 8 / zoom, 0, 2 * Math.PI);
+                            ctx.fillStyle = playerColor;
+                            ctx.fill();
+                            ctx.strokeStyle = 'white';
+                            ctx.lineWidth = 2 / zoom;
+                            ctx.stroke();
 
-                const heightDifference = player.Position.Z - (selectedPlayer ? selectedPlayer.Position.Z : player.Position.Z);
+                            let lineEndX, lineEndY;
 
-                if (heightDifference >= 5) {
-                    drawArrow(coords.x - 15 / zoom, coords.y, 'doubleup');
-                } else if (heightDifference > 3) {
-                    drawArrow(coords.x - 15 / zoom, coords.y, 'up');
-                } else if (heightDifference < -3) {
-                    drawArrow(coords.x - 15 / zoom, coords.y, 'down');
-                } else if (heightDifference < -5) {
-                    drawArrow(coords.x - 15 / zoom, coords.y, 'doubledown');
+                            if (selectedPlayer && player.ProfileID !== selectedPlayerId && isLookingAtPlayer(player, selectedPlayer)) {
+                                const distanceToSelected = calculateDistance(player.Position, selectedPlayer.Position);
+                                if (distanceToSelected <= 300) {
+                                    const selectedCoords = convertPositionToMapCoords(selectedPlayer.Position);
+                                    lineEndX = selectedCoords.x;
+                                    lineEndY = selectedCoords.y;
+                                } else {
+                                    drawNormalDirectionLine(player, coords);
+                                }
+                            } else {
+                                drawNormalDirectionLine(player, coords);
+                            }
+
+                            ctx.beginPath();
+                            ctx.moveTo(coords.x, coords.y);
+                            ctx.lineTo(lineEndX, lineEndY);
+                            ctx.strokeStyle = 'white';
+                            ctx.lineWidth = 2 / zoom;
+                            ctx.stroke();
+                        } else if (showDeadBodies) {
+                            ctx.font = `${20 / zoom}px Arial`;
+                            ctx.fillStyle = player.IsPMC || isBoss(player.Name) || isFollowerOrGuard(player.Name) ? 'black' : 'white';
+                            ctx.textAlign = 'center';
+                            ctx.fillText('X', coords.x, coords.y + 5 / zoom);
+                        }
+                    } else {
+                        console.log('Invalid player coordinates', player.Position);
+                    }
                 }
-            } else {
-                console.log('Invalid player coordinates', player.Position);
-            }
-        }
-    });
-}
+            });
 
-// Function to draw the normal direction line
-function drawNormalDirectionLine(player, coords) {
-    const lineLength = 25 / zoom; // Length of the direction line
-    const yawRadians = (player.Rotation.Yaw * Math.PI) / 180;
-    const lineEndX = coords.x + Math.cos(yawRadians) * lineLength;
-    const lineEndY = coords.y + Math.sin(yawRadians) * lineLength;
-
-    ctx.beginPath();
-    ctx.moveTo(coords.x, coords.y);
-    ctx.lineTo(lineEndX, lineEndY);
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 2 / zoom;
-    ctx.stroke();
-}
-
-// Function to check if a player is looking at the selected player
-function isLookingAtPlayer(player, targetPlayer) {
-    if (!player || !targetPlayer) return false;
-
-    const playerCoords = convertPositionToMapCoords(player.Position);
-    const targetCoords = convertPositionToMapCoords(targetPlayer.Position);
-
-    const dx = targetCoords.x - playerCoords.x;
-    const dy = targetCoords.y - playerCoords.y;
-
-    const angleToTarget = Math.atan2(dy, dx) * (180 / Math.PI); // Convert to degrees
-    const playerYaw = (player.Rotation.Yaw + 360) % 360; // Normalize yaw to 0-360
-
-    const angleDifference = Math.abs(angleToTarget - playerYaw);
-
-    const threshold = 2;
-    return angleDifference <= threshold || angleDifference >= (360 - threshold);
-}
-
-// Function to calculate the distance between two positions
-function calculateDistance(pos1, pos2) {
-    const dx = pos2.X - pos1.X;
-    const dy = pos2.Y - pos1.Y;
-    const dz = pos2.Z - pos1.Z;
-    return Math.sqrt(dx * dx + dy * dy + dz * dz);
-}
-        async function loadapiPlayers() {
-            try {
-                const response = await fetch("/api/game/PLAYERS");
-                apiPlayers = await response.json();
-                drawMap();
-            } catch (error) {
-                console.error('Error loading apiPlayers:', error);
-            }
+            // Update the player stats
+            document.getElementById('pmcCount').textContent = pmcCount;
+            document.getElementById('scavCount').textContent = scavCount;
+            document.getElementById('bossCount').textContent = bossCount;
         }
 
-function drawLoot() {
-    const minLootValue = document.getElementById('minLootValue').value;
-    const importantLootPrice = document.getElementById('importantLootPrice').value;
-    const showLoot = document.getElementById('showLoot').checked;
-    const searchQuery = document.getElementById('lootSearch').value.toLowerCase();
+        function drawNormalDirectionLine(player, coords) {
+            const lineLength = 25 / zoom;
+            const yawRadians = (player.Rotation.Yaw * Math.PI) / 180;
+            const lineEndX = coords.x + Math.cos(yawRadians) * lineLength;
+            const lineEndY = coords.y + Math.sin(yawRadians) * lineLength;
 
-    if (!showLoot || !loot || loot.length === 0) return;
-
-    const localPlayer = mapData.players.find(player => player.IsLocalPlayer);
-    const localPlayerZ = localPlayer ? localPlayer.Position.Z : 0;
-
-    // Draw loose loot
-    loot.forEach(item => {
-        const itemName = item.Name ? item.Name.toLowerCase() : '';
-        const itemLongName = item.LongName ? item.LongName.toLowerCase() : '';
-
-        if (item.Value >= minLootValue && (itemName.includes(searchQuery) || itemLongName.includes(searchQuery))) {
-            const coords = convertPositionToMapCoords(item.Position);
-            if (coords) {
-                const heightDifference = item.Position.Z - localPlayerZ;
-
-                ctx.beginPath();
-                if (heightDifference > 2.5) {
-                    // Draw upward-pointing yellow triangle (loot is above the player)
-                    ctx.moveTo(coords.x, coords.y - 5 / zoom);
-                    ctx.lineTo(coords.x - 5 / zoom, coords.y + 5 / zoom);
-                    ctx.lineTo(coords.x + 5 / zoom, coords.y + 5 / zoom);
-                    ctx.closePath();
-                    ctx.fillStyle = 'yellow';
-                } else if (heightDifference < -2.5) {
-                    // Draw downward-pointing yellow triangle (loot is below the player)
-                    ctx.moveTo(coords.x, coords.y + 5 / zoom);
-                    ctx.lineTo(coords.x - 5 / zoom, coords.y - 5 / zoom);
-                    ctx.lineTo(coords.x + 5 / zoom, coords.y - 5 / zoom);
-                    ctx.closePath();
-                    ctx.fillStyle = 'yellow';
-                } else {
-                    // Draw green circle (loot is on the same level as the player)
-                    ctx.arc(coords.x, coords.y, 5 / zoom, 0, 2 * Math.PI);
-                    ctx.fillStyle = 'green';
-                }
-                ctx.fill();
-                ctx.strokeStyle = 'white';
-                ctx.lineWidth = 1 / zoom;
-                ctx.stroke();
-
-                // Draw red circle for important loot
-                if (item.Value >= importantLootPrice) {
-                    ctx.beginPath();
-                    ctx.arc(coords.x, coords.y, 7 / zoom, 0, 2 * Math.PI);
-                    ctx.strokeStyle = 'red';
-                    ctx.lineWidth = 2 / zoom;
-                    ctx.stroke();
-                }
-            }
+            ctx.beginPath();
+            ctx.moveTo(coords.x, coords.y);
+            ctx.lineTo(lineEndX, lineEndY);
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 2 / zoom;
+            ctx.stroke();
         }
-    });
 
-    // Draw loot inside containers
-    containers.forEach(container => {
-        const containerItemsMatch = container.Items.some(item => {
-            const itemName = item.Name ? item.Name.toLowerCase() : '';
-            const itemLongName = item.LongName ? item.LongName.toLowerCase() : '';
-            return item.Value >= minLootValue && (itemName.includes(searchQuery) || itemLongName.includes(searchQuery));
-        });
+        function isLookingAtPlayer(player, targetPlayer) {
+            if (!player || !targetPlayer) return false;
 
-        if (containerItemsMatch) {
-            const coords = convertPositionToMapCoords(container.Position);
-            if (coords) {
-                const heightDifference = container.Position.Z - localPlayerZ;
+            const playerCoords = convertPositionToMapCoords(player.Position);
+            const targetCoords = convertPositionToMapCoords(targetPlayer.Position);
 
-                ctx.beginPath();
-                if (heightDifference > 2.5) {
-                    ctx.moveTo(coords.x, coords.y - 5 / zoom);
-                    ctx.lineTo(coords.x - 5 / zoom, coords.y + 5 / zoom);
-                    ctx.lineTo(coords.x + 5 / zoom, coords.y + 5 / zoom);
-                    ctx.closePath();
-                    ctx.fillStyle = 'yellow';
-                } else if (heightDifference < -2.5) {
-                    ctx.moveTo(coords.x, coords.y + 5 / zoom);
-                    ctx.lineTo(coords.x - 5 / zoom, coords.y - 5 / zoom);
-                    ctx.lineTo(coords.x + 5 / zoom, coords.y - 5 / zoom);
-                    ctx.closePath();
-                    ctx.fillStyle = 'yellow';
-                } else {
-                    ctx.arc(coords.x, coords.y, 5 / zoom, 0, 2 * Math.PI);
-                    ctx.fillStyle = 'green';
-                }
-                ctx.fill();
-                ctx.strokeStyle = 'white';
-                ctx.lineWidth = 1 / zoom;
-                ctx.stroke();
+            const dx = targetCoords.x - playerCoords.x;
+            const dy = targetCoords.y - playerCoords.y;
 
-                // Draw red circle for important loot in containers
-                if (container.Items.some(item => item.Value >= importantLootPrice)) {
-                    ctx.beginPath();
-                    ctx.arc(coords.x, coords.y, 7 / zoom, 0, 2 * Math.PI);
-                    ctx.strokeStyle = 'red';
-                    ctx.lineWidth = 2 / zoom;
-                    ctx.stroke();
-                }
-            }
+            const angleToTarget = Math.atan2(dy, dx) * (180 / Math.PI);
+            const playerYaw = (player.Rotation.Yaw + 360) % 360;
+
+            const angleDifference = Math.abs(angleToTarget - playerYaw);
+
+            const threshold = 2;
+            return angleDifference <= threshold || angleDifference >= (360 - threshold);
         }
-    });
 
-    // Draw loot inside corpses
-    corpses.forEach(corpse => {
-        const corpseItemsMatch = corpse.Items.some(item => {
-            const itemName = item.Name ? item.Name.toLowerCase() : '';
-            const itemLongName = item.LongName ? item.LongName.toLowerCase() : '';
-            return item.Value >= minLootValue && (itemName.includes(searchQuery) || itemLongName.includes(searchQuery));
-        });
-
-        if (corpseItemsMatch) {
-            const coords = convertPositionToMapCoords(corpse.Position);
-            if (coords) {
-                const heightDifference = corpse.Position.Z - localPlayerZ;
-
-                ctx.beginPath();
-                if (heightDifference > 2.5) {
-                    ctx.moveTo(coords.x, coords.y - 5 / zoom);
-                    ctx.lineTo(coords.x - 5 / zoom, coords.y + 5 / zoom);
-                    ctx.lineTo(coords.x + 5 / zoom, coords.y + 5 / zoom);
-                    ctx.closePath();
-                    ctx.fillStyle = 'yellow';
-                } else if (heightDifference < -2.5) {
-                    ctx.moveTo(coords.x, coords.y + 5 / zoom);
-                    ctx.lineTo(coords.x - 5 / zoom, coords.y - 5 / zoom);
-                    ctx.lineTo(coords.x + 5 / zoom, coords.y - 5 / zoom);
-                    ctx.closePath();
-                    ctx.fillStyle = 'yellow';
-                } else {
-                    ctx.arc(coords.x, coords.y, 5 / zoom, 0, 2 * Math.PI);
-                    ctx.fillStyle = 'green';
-                }
-                ctx.fill();
-                ctx.strokeStyle = 'white';
-                ctx.lineWidth = 1 / zoom;
-                ctx.stroke();
-
-                // Draw red circle for important loot in corpses
-                if (corpse.Items.some(item => item.Value >= importantLootPrice)) {
-                    ctx.beginPath();
-                    ctx.arc(coords.x, coords.y, 7 / zoom, 0, 2 * Math.PI);
-                    ctx.strokeStyle = 'red';
-                    ctx.lineWidth = 2 / zoom;
-                    ctx.stroke();
-                }
-
-                ctx.font = `${12 / zoom}px Arial`;
-                ctx.fillStyle = 'white';
-                ctx.textAlign = 'center';
-                ctx.fillText(corpse.Name, coords.x, coords.y + 25 / zoom);
-            }
+        function calculateDistance(pos1, pos2) {
+            const dx = pos2.X - pos1.X;
+            const dy = pos2.Y - pos1.Y;
+            const dz = pos2.Z - pos1.Z;
+            return Math.sqrt(dx * dx + dy * dy + dz * dz);
         }
-    });
-}
+
+        function drawLoot() {
+            const minLootValue = document.getElementById('minLootValue').value;
+            const importantLootPrice = document.getElementById('importantLootPrice').value;
+            const showLoot = document.getElementById('showLoot').checked;
+            const showContainers = document.getElementById('showContainers').checked;
+            const searchQuery = document.getElementById('lootSearch').value.toLowerCase();
+
+            if (!showLoot || !loot || loot.length === 0) return;
+
+            const localPlayer = mapData.players.find(player => player.IsLocalPlayer);
+            const localPlayerZ = localPlayer ? localPlayer.Position.Z : 0;
+
+            loot.forEach(item => {
+                const itemName = item.Name ? item.Name.toLowerCase() : '';
+                if (itemName.includes(searchQuery) && item.Value >= minLootValue) {
+                    const coords = convertPositionToMapCoords(item.Position);
+                    if (coords) {
+                        ctx.beginPath();
+                        ctx.arc(coords.x, coords.y, 5 / zoom, 0, 2 * Math.PI);
+                        ctx.fillStyle = 'green';
+                        ctx.fill();
+                        ctx.strokeStyle = 'white';
+                        ctx.lineWidth = 1 / zoom;
+                        ctx.stroke();
+
+                        if (item.Value >= importantLootPrice) {
+                            ctx.beginPath();
+                            ctx.arc(coords.x, coords.y, 7 / zoom, 0, 2 * Math.PI);
+                            ctx.strokeStyle = 'red';
+                            ctx.lineWidth = 2 / zoom;
+                            ctx.stroke();
+                        }
+                    }
+                }
+            });
+
+            if (showContainers && containers.length > 0) {
+                containers.forEach(container => {
+                    const containerType = container.name.replace(/\s+/g, '').toLowerCase();
+                    const checkbox = document.getElementById(`container${containerType.charAt(0).toUpperCase() + containerType.slice(1)}`);
+                    if (checkbox && checkbox.checked) {
+                        const containerItemsMatch = container.items.some(item => {
+                            const itemName = item.Name ? item.Name.toLowerCase() : '';
+                            return item.Value >= minLootValue && itemName.includes(searchQuery);
+                        }) || container.items.length === 0;
+
+                        if (containerItemsMatch) {
+                            const coords = convertExfilToMapCoords(container.position);
+                            if (coords) {
+                                const heightDifference = container.position.z - localPlayerZ;
+
+                                ctx.beginPath();
+                                if (heightDifference > 2.5) {
+                                    ctx.moveTo(coords.x, coords.y - 5 / zoom);
+                                    ctx.lineTo(coords.x - 5 / zoom, coords.y + 5 / zoom);
+                                    ctx.lineTo(coords.x + 5 / zoom, coords.y + 5 / zoom);
+                                    ctx.closePath();
+                                    ctx.fillStyle = 'yellow';
+                                } else if (heightDifference < -2.5) {
+                                    ctx.moveTo(coords.x, coords.y + 5 / zoom);
+                                    ctx.lineTo(coords.x - 5 / zoom, coords.y - 5 / zoom);
+                                    ctx.lineTo(coords.x + 5 / zoom, coords.y - 5 / zoom);
+                                    ctx.closePath();
+                                    ctx.fillStyle = 'yellow';
+                                } else {
+                                    ctx.arc(coords.x, coords.y, 5 / zoom, 0, 2 * Math.PI);
+                                    ctx.fillStyle = 'green';
+                                }
+                                ctx.fill();
+                                ctx.strokeStyle = 'white';
+                                ctx.lineWidth = 1 / zoom;
+                                ctx.stroke();
+
+                                if (container.items.some(item => item.Value >= importantLootPrice)) {
+                                    ctx.beginPath();
+                                    ctx.arc(coords.x, coords.y, 7 / zoom, 0, 2 * Math.PI);
+                                    ctx.strokeStyle = 'red';
+                                    ctx.lineWidth = 2 / zoom;
+                                    ctx.stroke();
+                                }
+
+                                ctx.font = `${12 / zoom}px Arial`;
+                                ctx.fillStyle = 'white';
+                                ctx.textAlign = 'center';
+                                ctx.fillText(container.name, coords.x, coords.y - 10 / zoom);
+                            }
+                        }
+                    }
+                });
+            }
+
+            corpses.forEach(corpse => {
+                const corpseItemsMatch = corpse.Items.some(item => {
+                    const itemName = item.Name ? item.Name.toLowerCase() : '';
+                    return item.Value >= minLootValue && itemName.includes(searchQuery);
+                });
+
+                if (corpseItemsMatch) {
+                    const coords = convertPositionToMapCoords(corpse.Position);
+                    if (coords) {
+                        const heightDifference = corpse.Position.Z - localPlayerZ;
+
+                        ctx.beginPath();
+                        if (heightDifference > 2.5) {
+                            ctx.moveTo(coords.x, coords.y - 5 / zoom);
+                            ctx.lineTo(coords.x - 5 / zoom, coords.y + 5 / zoom);
+                            ctx.lineTo(coords.x + 5 / zoom, coords.y + 5 / zoom);
+                            ctx.closePath();
+                            ctx.fillStyle = 'yellow';
+                        } else if (heightDifference < -2.5) {
+                            ctx.moveTo(coords.x, coords.y + 5 / zoom);
+                            ctx.lineTo(coords.x - 5 / zoom, coords.y - 5 / zoom);
+                            ctx.lineTo(coords.x + 5 / zoom, coords.y - 5 / zoom);
+                            ctx.closePath();
+                            ctx.fillStyle = 'yellow';
+                        } else {
+                            ctx.arc(coords.x, coords.y, 5 / zoom, 0, 2 * Math.PI);
+                            ctx.fillStyle = 'green';
+                        }
+                        ctx.fill();
+                        ctx.strokeStyle = 'white';
+                        ctx.lineWidth = 1 / zoom;
+                        ctx.stroke();
+
+                        if (corpse.Items.some(item => item.Value >= importantLootPrice)) {
+                            ctx.beginPath();
+                            ctx.arc(coords.x, coords.y, 7 / zoom, 0, 2 * Math.PI);
+                            ctx.strokeStyle = 'red';
+                            ctx.lineWidth = 2 / zoom;
+                            ctx.stroke();
+                        }
+
+                        ctx.font = `${12 / zoom}px Arial`;
+                        ctx.fillStyle = 'white';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(corpse.Name, coords.x, coords.y + 25 / zoom);
+                    }
+                }
+            });
+        }
 
         function drawExfils() {
             const showExfils = document.getElementById('showExfils').checked;
@@ -670,7 +823,7 @@ function drawLoot() {
                     if (exfil.status === 0) {
                         color = 'green';
                     }
-					else if (exfil.status === 1) {
+                    else if (exfil.status === 1) {
                         color = 'yellow';
                     }
 
@@ -692,8 +845,8 @@ function drawLoot() {
                 }
             });
         }
-		
-  function isBoss(playerName) {
+
+        function isBoss(playerName) {
             if (!aiFactions) return false;
             return aiFactions.some(faction => faction.Name === "Bosses" && faction.Names.includes(playerName));
         }
@@ -703,30 +856,27 @@ function drawLoot() {
             return aiFactions.some(faction => faction.Name === "Shturman Followers" && faction.Names.includes(playerName));
         }
 
-function drawArrow(x, y, direction) {
-    const arrowSize = 17 / zoom;
+        function drawArrow(x, y, direction) {
+            const arrowSize = 17 / zoom;
 
-    ctx.save(); // Save the current state of the canvas
+            ctx.save();
 
-    // Translate the canvas origin to the position where you want to draw the arrow
-    ctx.translate(x, y);
+            ctx.translate(x, y);
 
-    if (direction === 'up') {
-        ctx.drawImage(arrowUpImage, -arrowSize / 2, -arrowSize / 2, arrowSize, arrowSize);
-    } else if (direction === 'down') {
-        // Flip vertically for down arrow
-        ctx.scale(1, -1);
-        ctx.drawImage(arrowUpImage, -arrowSize / 2, -arrowSize / 2, arrowSize, arrowSize);
-    } else if (direction === 'doubleup') {
-        ctx.drawImage(doubleUpImage, -arrowSize / 2, -arrowSize / 2, arrowSize, arrowSize);
-    } else if (direction === 'doubledown') {
-        // Flip vertically for double down arrow
-        ctx.scale(1, -1);
-        ctx.drawImage(doubleUpImage, -arrowSize / 2, -arrowSize / 2, arrowSize, arrowSize);
-    }
+            if (direction === 'up') {
+                ctx.drawImage(arrowUpImage, -arrowSize / 2, -arrowSize / 2, arrowSize, arrowSize);
+            } else if (direction === 'down') {
+                ctx.scale(1, -1);
+                ctx.drawImage(arrowUpImage, -arrowSize / 2, -arrowSize / 2, arrowSize, arrowSize);
+            } else if (direction === 'doubleup') {
+                ctx.drawImage(doubleUpImage, -arrowSize / 2, -arrowSize / 2, arrowSize, arrowSize);
+            } else if (direction === 'doubledown') {
+                ctx.scale(1, -1);
+                ctx.drawImage(doubleUpImage, -arrowSize / 2, -arrowSize / 2, arrowSize, arrowSize);
+            }
 
-    ctx.restore(); // Restore the canvas to its previous state
-}
+            ctx.restore();
+        }
 
         function convertPositionToMapCoords(position) {
             const x = mapCenter.x + ((position.X) * scaleFactor);
@@ -739,7 +889,7 @@ function drawArrow(x, y, direction) {
             const y = mapCenter.y - ((position.y) * scaleFactor);
             return { x, y };
         }
-		
+
         function handleMouseHover(mouseX, mouseY) {
             if (!mapData || !mapData.players) return;
 
@@ -793,7 +943,7 @@ function drawArrow(x, y, direction) {
 
             if (!hoveredEntity && containers) {
                 for (const container of containers) {
-                    const coords = convertPositionToMapCoords(container.Position);
+                    const coords = convertExfilToMapCoords(container.position);
                     const distance = Math.sqrt(Math.pow(coords.x - adjustedMouseX, 2) + Math.pow(coords.y - adjustedMouseY, 2));
 
                     if (distance < 8 / zoom) {
@@ -813,92 +963,143 @@ function drawArrow(x, y, direction) {
             }
         }
 
-function showEntityInfo(hoveredEntity, mouseX, mouseY) {
-    if (hoveredEntity.type === 'player') {
-        const player = hoveredEntity.entity;
-        playerInfo.innerHTML = `
-            <h3>${player.Name} (Lvl: ${player.Lvl})</h3>
-            ${player.Gear.map(gearItem => `
-                <p><strong>${gearItem.Slot}:</strong> (${gearItem.ShortName}), Value: ${gearItem.ItemValue}</p>
-            `).join('')}
-        `;
-    } else if (hoveredEntity.type === 'loot') {
-        const item = hoveredEntity.entity;
-        playerInfo.innerHTML = `
-            <h3>${item.Name}</h3>
-            <p>Value: ${item.Value}</p>
-        `;
-    } else if (hoveredEntity.type === 'corpse') {
-        const corpse = hoveredEntity.entity;
-        playerInfo.innerHTML = `
-            <h3>${corpse.Name}</h3>
-            ${corpse.Items.map(item => `
-                <p><strong>${item.Name}:</strong> Value: ${item.Value}</p>
-            `).join('')}
-        `;
-    } else if (hoveredEntity.type === 'container') {
-        const container = hoveredEntity.entity;
-        playerInfo.innerHTML = `
-            <h3>${container.Name}</h3>
-            ${container.Items.map(item => `
-                <p><strong>${item.Name}:</strong> Value: ${item.Value}</p>
-            `).join('')}
-        `;
-    }
+        function showEntityInfo(hoveredEntity, mouseX, mouseY) {
+            if (hoveredEntity.type === 'player') {
+                const player = hoveredEntity.entity;
+                playerInfo.innerHTML = `
+                    <h3>${player.Name} (Lvl: ${player.Lvl})</h3>
+                    ${player.Gear.map(gearItem => `
+                        <p><strong>${gearItem.Slot}:</strong> (${gearItem.ShortName}), Value: ${gearItem.ItemValue}</p>
+                    `).join('')}
+                `;
+            } else if (hoveredEntity.type === 'loot') {
+                const item = hoveredEntity.entity;
+                playerInfo.innerHTML = `
+                    <h3>${item.Name}</h3>
+                    <p>Value: ${item.Value}</p>
+                `;
+            } else if (hoveredEntity.type === 'corpse') {
+                const corpse = hoveredEntity.entity;
+                playerInfo.innerHTML = `
+                    <h3>${corpse.Name}</h3>
+                    ${corpse.Items.map(item => `
+                        <p><strong>${item.Name}:</strong> Value: ${item.Value}</p>
+                    `).join('')}
+                `;
+            } else if (hoveredEntity.type === 'container') {
+                const container = hoveredEntity.entity;
+                playerInfo.innerHTML = `
+                    <h3>${container.name}</h3>
+                    ${container.items.map(item => `
+                        <p><strong>${item.Name}:</strong> Value: ${item.Value}</p>
+                    `).join('')}
+                `;
+            }
 
-    playerInfo.style.left = `${mouseX + 10}px`;
-    playerInfo.style.top = `${mouseY + 10}px`;
-    playerInfo.style.display = 'block';
-}
+            playerInfo.style.left = `${mouseX + 10}px`;
+            playerInfo.style.top = `${mouseY + 10}px`;
+            playerInfo.style.display = 'block';
+        }
 
         function hidePlayerInfo() {
             playerInfo.style.display = 'none';
         }
 
-        // Function to connect to the WebSocket server
 function connectWebSocket() {
-    // Fetch the Settings.json file each time the page is loaded
     fetch('/Configuration/Settings.json')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Settings.json not found');
+            }
+            return response.json();
+        })
         .then(data => {
-            // Retrieve the hostname from the JSON file
-            const hostname = data.hostname || 'default.hostname.com'; // Default if hostname is not found
-
-            // Determine the WebSocket protocol based on the hostname
+            const hostname = data.hostname || 'localhost';
             const protocol = (hostname === 'localhost' || hostname === '0.0.0.0' || hostname === '127.0.0.1') ? 'ws' : 'wss';
-
-            // Use the hostname and protocol to connect to the WebSocket server
             const socket = new WebSocket(`${protocol}://${hostname}/ws/connect`);
 
             socket.onopen = () => console.log(`WebSocket connection established with ${hostname} using ${protocol}`);
 
-            socket.onmessage = (event) => {
+            socket.onmessage = async (event) => {
                 const data = JSON.parse(event.data);
-                mapData = mapData || {}; 
-                mapData.players = data.players;
-                loot = data.loot || [];
-                corpses = data.corpses || [];
-                containers = data.containers || [];
-                selectedPlayerId = document.getElementById('playerSelect').value;
-                updatePlayerSelect(data.players);
-                drawMap();
+
+                if (data.message === "Game has ended. Waiting for new game to start.") {
+                    showWaitingForGame();
+                } else {
+                    hideWaitingForGame();
+                    mapData = mapData || {};
+                    mapData.players = data.players;
+                    loot = data.loot || [];
+                    corpses = data.corpses || [];
+
+                    selectedPlayerId = document.getElementById('playerSelect').value;
+                    updatePlayerSelect(data.players);
+                    drawMap();
+                }
             };
 
             socket.onclose = (event) => console.log('WebSocket connection closed:', event.code, event.reason);
             socket.onerror = (error) => console.error('WebSocket error:', error);
         })
         .catch(error => {
-            console.error('Error fetching Settings.json:', error);
+            console.error('Error fetching Settings.json, defaulting to localhost:', error);
+            const hostname = 'localhost';
+            const protocol = 'ws';
+            const socket = new WebSocket(`${protocol}://${hostname}/ws/connect`);
+
+            socket.onopen = () => console.log(`WebSocket connection established with ${hostname} using ${protocol}`);
+
+            socket.onmessage = async (event) => {
+                const data = JSON.parse(event.data);
+
+                if (data.message === "Game has ended. Waiting for new game to start.") {
+                    showWaitingForGame();
+                } else {
+                    hideWaitingForGame();
+                    mapData = mapData || {};
+                    mapData.players = data.players;
+                    loot = data.loot || [];
+                    corpses = data.corpses || [];
+
+                    selectedPlayerId = document.getElementById('playerSelect').value;
+                    updatePlayerSelect(data.players);
+                    drawMap();
+                }
+            };
+
+            socket.onclose = (event) => console.log('WebSocket connection closed:', event.code, event.reason);
+            socket.onerror = (error) => console.error('WebSocket error:', error);
         });
 }
 
-        // Call the function to connect to the WebSocket when the page is loaded
-        window.addEventListener('load', connectWebSocket);
+function showWaitingForGame() {
+    const waitingDiv = document.createElement('div');
+    waitingDiv.id = 'waitingForGame';
+    waitingDiv.style.position = 'fixed';
+    waitingDiv.style.top = '0';
+    waitingDiv.style.left = '0';
+    waitingDiv.style.width = '100vw';
+    waitingDiv.style.height = '100vh';
+    waitingDiv.style.backgroundColor = 'black';
+    waitingDiv.style.color = 'red';
+    waitingDiv.style.display = 'flex';
+    waitingDiv.style.alignItems = 'center';
+    waitingDiv.style.justifyContent = 'center';
+    waitingDiv.style.fontSize = '24px';
+    waitingDiv.style.zIndex = '1000';
+    waitingDiv.textContent = 'Waiting for Raid to Start';
 
-        // Optionally, reconnect to the WebSocket when the page is refreshed or unloaded
-        window.addEventListener('beforeunload', function() {
-            // Here you can clean up or log the disconnect if needed
-        });
+    document.body.appendChild(waitingDiv);
+}
+
+function hideWaitingForGame() {
+    const waitingDiv = document.getElementById('waitingForGame');
+    if (waitingDiv) {
+        document.body.removeChild(waitingDiv);
+    }
+}
+
+window.addEventListener('load', connectWebSocket);
 
         function updatePlayerSelect(players) {
             const playerSelect = document.getElementById('playerSelect');
@@ -922,14 +1123,18 @@ function connectWebSocket() {
                 updateMapLayer();
             }
         }
-		
-        document.getElementById('playerSelect').addEventListener('change', (e) => {
-            selectedPlayerId = e.target.value;
-            mapData.players.forEach(player => {
-                player.IsLocalPlayer = (player.ProfileID === selectedPlayerId);
-            });
-            updateMapLayer();
-            drawMap();
+
+        document.getElementById('showContainers').addEventListener('change', (e) => {
+            const modal = document.getElementById('containerSettingsModal');
+            if (e.target.checked) {
+                modal.style.display = 'flex';
+            } else {
+                modal.style.display = 'none';
+            }
+        });
+
+        document.getElementById('closeModal').addEventListener('click', () => {
+            document.getElementById('containerSettingsModal').style.display = 'none';
         });
 
         document.getElementById('toggleSidebar').addEventListener('click', () => {
@@ -945,81 +1150,73 @@ function connectWebSocket() {
                 document.getElementById(this.id + 'Content').classList.add('active');
             });
         });
-		// Function to save settings to local storage
-		function saveSetting(key, value) {
-			localStorage.setItem(key, value);
-		}
-		
-		// Function to load settings from local storage
-		function loadSetting(key, defaultValue) {
-			return localStorage.getItem(key) !== null ? localStorage.getItem(key) : defaultValue;
-		}
-		
-		// Load initial settings
-		document.getElementById('showPlayers').checked = JSON.parse(loadSetting('showPlayers', 'true'));
-		document.getElementById('showScavs').checked = JSON.parse(loadSetting('showScavs', 'true'));
-		document.getElementById('showBosses').checked = JSON.parse(loadSetting('showBosses', 'true'));
-		document.getElementById('showTeammates').checked = JSON.parse(loadSetting('showTeammates', 'true'));
-		document.getElementById('showLoot').checked = JSON.parse(loadSetting('showLoot', 'true'));
-		document.getElementById('showExfils').checked = JSON.parse(loadSetting('showExfils', 'true'));
-		
-		document.getElementById('minLootValue').value = loadSetting('minLootValue', '0');
-		document.getElementById('minLootValueDisplay').innerText = document.getElementById('minLootValue').value;
-		document.getElementById('importantLootPrice').value = loadSetting('importantLootPrice', '60000');
-		document.getElementById('lootSearch').value = loadSetting('lootSearch', '');
-		
-		// Save settings when they change
-		document.getElementById('showPlayers').addEventListener('change', (e) => {
-			saveSetting('showPlayers', e.target.checked);
-			drawMap();
-		});
-		
-		document.getElementById('showScavs').addEventListener('change', (e) => {
-			saveSetting('showScavs', e.target.checked);
-			drawMap();
-		});
-		
-		document.getElementById('showBosses').addEventListener('change', (e) => {
-			saveSetting('showBosses', e.target.checked);
-			drawMap();
-		});
-		
-		document.getElementById('showTeammates').addEventListener('change', (e) => {
-			saveSetting('showTeammates', e.target.checked);
-			drawMap();
-		});
-		
-		document.getElementById('showLoot').addEventListener('change', (e) => {
-			saveSetting('showLoot', e.target.checked);
-			drawMap();
-		});
-		
-		document.getElementById('showExfils').addEventListener('change', (e) => {
-			saveSetting('showExfils', e.target.checked);
-			drawMap();
-		});
-		
-		document.getElementById('minLootValue').addEventListener('input', (e) => {
-			document.getElementById('minLootValueDisplay').innerText = e.target.value;
-			saveSetting('minLootValue', e.target.value);
-			drawMap();
-		});
-		
-		document.getElementById('importantLootPrice').addEventListener('input', (e) => {
-			saveSetting('importantLootPrice', e.target.value);
-			drawMap();
-		});
-		
-		document.getElementById('lootSearch').addEventListener('input', (e) => {
-			saveSetting('lootSearch', e.target.value);
-			drawMap();
-		});
-		
-		// Initialize
-		getAndLoadMap();
-		loadAiFactions();
-		loadExfils();
-		connectWebSocket();
+
+        document.getElementById('playerSelect').addEventListener('change', (e) => {
+            selectedPlayerId = e.target.value;
+            mapData.players.forEach(player => {
+                player.IsLocalPlayer = (player.ProfileID === selectedPlayerId);
+            });
+            updateMapLayer();
+            drawMap();
+        });
+
+        document.getElementById('showMostValuableLoot').addEventListener('change', (e) => {
+            mostValuableLootPopup.style.display = e.target.checked ? 'block' : 'none';
+            if (e.target.checked) {
+                updateMostValuableLoot();
+            }
+        });
+
+        document.getElementById('showPlayerStats').addEventListener('change', (e) => {
+            playerStatsPopup.style.display = e.target.checked ? 'block' : 'none';
+            if (e.target.checked) {
+                updatePlayerStats();
+            }
+        });
+
+        function updateMostValuableLoot() {
+            const mostValuableLootList = document.getElementById('mostValuableLootList');
+            mostValuableLootList.innerHTML = '';
+
+            const sortedLoot = [...loot].sort((a, b) => b.Value - a.Value).slice(0, 15);
+
+            sortedLoot.forEach(item => {
+                const row = document.createElement('tr');
+                const nameCell = document.createElement('td');
+                const valueCell = document.createElement('td');
+
+                nameCell.textContent = item.Name;
+                valueCell.textContent = item.Value;
+
+                row.appendChild(nameCell);
+                row.appendChild(valueCell);
+
+                mostValuableLootList.appendChild(row);
+            });
+        }
+
+        function updatePlayerStats() {
+            let pmcCount = 0;
+            let scavCount = 0;
+            let bossCount = 0;
+
+            mapData.players.forEach(player => {
+                if (player.IsPMC) pmcCount++;
+                else if (isBoss(player.Name)) bossCount++;
+                else if (isFollowerOrGuard(player.Name)) scavCount++;
+                else scavCount++;
+            });
+
+            document.getElementById('pmcCount').textContent = pmcCount;
+            document.getElementById('scavCount').textContent = scavCount;
+            document.getElementById('bossCount').textContent = bossCount;
+        }
+
+        getAndLoadMap();
+        loadAiFactions();
+        loadExfils();
+        loadContainers();
+        connectWebSocket();
     </script>
 </body>
 
