@@ -321,7 +321,7 @@
         let loot = [];
         let corpses = [];
         let containers = [];
-        let zoom = 1;
+        let zoom = .25;
         let offsetX = 0;
         let offsetY = 0;
         let dragging = false;
@@ -660,7 +660,7 @@
 
             const angleDifference = Math.abs(angleToTarget - playerYaw);
 
-            const threshold = 2;
+            const threshold = 1;
             return angleDifference <= threshold || angleDifference >= (360 - threshold);
         }
 
@@ -1005,7 +1005,7 @@
             playerInfo.style.display = 'none';
         }
 
-function connectWebSocket() {
+        function connectWebSocket() {
     fetch('/Configuration/Settings.json')
         .then(response => {
             if (!response.ok) {
@@ -1015,7 +1015,7 @@ function connectWebSocket() {
         })
         .then(data => {
             const hostname = data.hostname || 'localhost';
-            const protocol = (hostname === 'localhost' || hostname === '0.0.0.0' || hostname === '127.0.0.1') ? 'ws' : 'wss';
+            const protocol = (hostname === 'localhost' || hostname === '0.0.0.0' || hostname === '127.0.0.1' || hostname.startsWith('192.') || hostname.startsWith('10.')) ? 'ws' : 'wss';
             const socket = new WebSocket(`${protocol}://${hostname}/ws/connect`);
 
             socket.onopen = () => console.log(`WebSocket connection established with ${hostname} using ${protocol}`);
