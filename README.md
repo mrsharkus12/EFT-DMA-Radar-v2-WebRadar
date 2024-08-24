@@ -1,21 +1,22 @@
 
 
+
 # EFT-DMA-Radar-v2
 
 ## Description
 EFT DMA Radar is a radar tool designed for Escape from Tarkov that provides real-time tracking of players and items on a 2D map. This fork of the radar adds ability to host a WebRadar alongside EFT DMA Radar. The webradar by default is hosted on localhost and can be accessed going to localhost in your browser. You can change the hostname/ip to your public ip or domain that points to your ip and share the link with your friends. For that to work you need to port forward port 80 in windows and your router.
 
 ## To Do
-1. Add Container Selection to the WebRadar
-2. Add Player Stats
+1. ~~Add Container Selection to the WebRadar~~
+2. ~~Add Player Stats~~
 3. Add Ammo Count to the selected player.
 4. Add abilty to change player and loot colors.
 
 
 ## Known Issues
-1. Webradar closes connection to the websocket when raid ends, simply click Restart Radar when new raid begins and refresh the website.
-2. On first load you need to Refresh Loot for it to show on webradar.
-3. Containers are for now disabled, as of the 0.15 update there has been some changes I need to address.
+1. ~~Webradar closes connection to the websocket when raid ends, simply click Restart Radar when new raid begins and refresh the website.~~ Just Refresh webpage when raid starts.
+2. ~~On first load you need to Refresh Loot for it to show on webradar.~~ Not needed in most cases anymore.
+3. ~~Containers are for now disabled, as of the 0.15 update there has been some changes I need to address.~~ Fixed
    
 ## Usage
 1. Clone the repository.
