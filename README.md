@@ -14,9 +14,9 @@ EFT DMA Radar is a radar tool designed for Escape from Tarkov that provides real
 
 
 ## Known Issues
-1. ~~Webradar closes connection to the websocket when raid ends, simply click Restart Radar when new raid begins and refresh the website.~~Just Refresh webpage when raid starts.
+1. ~~Webradar closes connection to the websocket when raid ends, simply click Restart Radar when new raid begins and refresh the website.~~ Just Refresh webpage when raid starts.
 2. ~~On first load you need to Refresh Loot for it to show on webradar.~~ Not needed in most cases anymore.
-3. ~~Containers are for now disabled, as of the 0.15 update there has been some changes I need to address.~~Fixed
+3. ~~Containers are for now disabled, as of the 0.15 update there has been some changes I need to address.~~ Fixed
    
 ## Usage
 1. Clone the repository.
