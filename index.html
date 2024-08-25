@@ -646,23 +646,27 @@
             ctx.stroke();
         }
 
-        function isLookingAtPlayer(player, targetPlayer) {
-            if (!player || !targetPlayer) return false;
+function isLookingAtPlayer(player, targetPlayer) {
+    if (!player || !targetPlayer) return false;
 
-            const playerCoords = convertPositionToMapCoords(player.Position);
-            const targetCoords = convertPositionToMapCoords(targetPlayer.Position);
+    const playerCoords = convertPositionToMapCoords(player.Position);
+    const targetCoords = convertPositionToMapCoords(targetPlayer.Position);
 
-            const dx = targetCoords.x - playerCoords.x;
-            const dy = targetCoords.y - playerCoords.y;
+    const dx = targetCoords.x - playerCoords.x;
+    const dy = targetCoords.y - playerCoords.y;
 
-            const angleToTarget = Math.atan2(dy, dx) * (180 / Math.PI);
-            const playerYaw = (player.Rotation.Yaw + 360) % 360;
+    const angleToTarget = Math.atan2(dy, dx) * (180 / Math.PI);
+    const playerYaw = (player.Rotation.Yaw + 360) % 360;
 
-            const angleDifference = Math.abs(angleToTarget - playerYaw);
+    let angleDifference = angleToTarget - playerYaw;
 
-            const threshold = 1;
-            return angleDifference <= threshold || angleDifference >= (360 - threshold);
-        }
+    // Normalize angle difference to the range of -180 to 180
+    if (angleDifference > 180) angleDifference -= 360;
+    if (angleDifference < -180) angleDifference += 360;
+
+    const threshold = 3; // Adjust this as needed
+    return Math.abs(angleDifference) <= threshold;
+}
 
         function calculateDistance(pos1, pos2) {
             const dx = pos2.X - pos1.X;
@@ -1005,7 +1009,7 @@
             playerInfo.style.display = 'none';
         }
 
-        function connectWebSocket() {
+function connectWebSocket() {
     fetch('/Configuration/Settings.json')
         .then(response => {
             if (!response.ok) {
@@ -1015,7 +1019,15 @@
         })
         .then(data => {
             const hostname = data.hostname || 'localhost';
-            const protocol = (hostname === 'localhost' || hostname === '0.0.0.0' || hostname === '127.0.0.1' || hostname.startsWith('192.') || hostname.startsWith('10.')) ? 'ws' : 'wss';
+            let protocol;
+
+            // Determine the protocol based on the hostname
+            if (hostname === 'localhost' || hostname === '0.0.0.0' || hostname === '127.0.0.1' || hostname.startsWith('192.') || hostname.startsWith('10.')) {
+                protocol = 'ws';
+            } else {
+                protocol = 'wss';
+            }
+
             const socket = new WebSocket(`${protocol}://${hostname}/ws/connect`);
 
             socket.onopen = () => console.log(`WebSocket connection established with ${hostname} using ${protocol}`);

@@ -6,26 +6,17 @@ namespace eft_dma_radar
     public class Config
     {
         #region Json Properties
+        [JsonPropertyName("hostname")]
+        public string Hostname { get; set; }     
+
         [JsonPropertyName("aimview")]
         public bool Aimview { get; set; }
 
         [JsonPropertyName("aimviewFOV")]
         public float AimViewFOV { get; set; }
 
-        [JsonPropertyName("autoLootRefresh")]
-        public bool AutoLootRefresh { get; set; }
-
-        [JsonPropertyName("autoRefreshSettings")]
-        public Dictionary<string, int> AutoRefreshSettings { get; set; }
-
         [JsonPropertyName("chams")]
         public Dictionary<string, bool> Chams { get; set; }
-
-        [JsonPropertyName("containerSettings")]
-        public Dictionary<string, bool> ContainerSettings { get; set; }
-
-        [JsonPropertyName("corpses")]
-        public bool Corpses { get; set; }
 
         [JsonPropertyName("defaultZoom")]
         public int DefaultZoom { get; set; }
@@ -66,14 +57,23 @@ namespace eft_dma_radar
         [JsonPropertyName("instantADS")]
         public bool InstantADS { get; set; }
 
-        [JsonPropertyName("jumpPowerStrength")]
-        public int JumpPowerStrength { get; set; }
-
         [JsonPropertyName("logging")]
         public bool Logging { get; set; }
 
         [JsonPropertyName("looseLoot")]
         public bool LooseLoot { get; set; }
+
+        [JsonPropertyName("lootContainerSettings")]
+        public Dictionary<string, bool> LootContainerSettings { get; set; }
+
+        [JsonPropertyName("lootCorpses")]
+        public bool LootCorpses { get; set; }
+
+        [JsonPropertyName("lootItemRefresh")]
+        public bool LootItemRefresh { get; set; }
+
+        [JsonPropertyName("lootItemRefreshSettings")]
+        public Dictionary<string, int> LootItemRefreshSettings { get; set; }
 
         [JsonPropertyName("lootItemViewer")]
         public bool LootItemViewer { get; set; }
@@ -156,6 +156,21 @@ namespace eft_dma_radar
         [JsonPropertyName("questHelper")]
         public bool QuestHelper { get; set; }
 
+        [JsonPropertyName("questItems")]
+        public bool QuestItems { get; set; }
+
+        [JsonPropertyName("questLocations")]
+        public bool QuestLocations { get; set; }
+
+        [JsonPropertyName("questLootItems")]
+        public bool QuestLootItems { get; set; }
+
+        [JsonPropertyName("questTaskRefresh")]
+        public bool QuestTaskRefresh { get; set; }
+
+        [JsonPropertyName("questTaskRefreshDelay")]
+        public int QuestTaskRefreshDelay { get; set; }
+
         [JsonPropertyName("radarStats")]
         public bool RadarStats { get; set; }
 
@@ -191,9 +206,6 @@ namespace eft_dma_radar
 
         [JsonPropertyName("zoomSensitivity")]
         public int ZoomSensitivity { get; set; }
-        
-        [JsonPropertyName("hostname")]
-        public string Hostname { get; set; }          
         #endregion
 
         #region Json Ignore
@@ -233,6 +245,7 @@ namespace eft_dma_radar
             ["ImportantLoot"] = new PaintColor.Colors { A = 255, R = 64, G = 224, B = 208 },
             ["QuestItem"] = new PaintColor.Colors { A = 255, R = 255, G = 0, B = 128 },
             ["QuestZone"] = new PaintColor.Colors { A = 255, R = 255, G = 0, B = 128 },
+            ["RequiredQuestItem"] = new PaintColor.Colors { A = 255, R = 255, G = 0, B = 128 },
             ["LootPing"] = new PaintColor.Colors { A = 255, R = 255, G = 255, B = 0 },
 
             // Other
@@ -400,13 +413,9 @@ namespace eft_dma_radar
         public Config()
         {
             Hostname = "localhost";
-            Aimview = false;
             AimViewFOV = 30;
-            AutoLootRefresh = false;
-            AutoRefreshSettings = DefaultAutoRefreshSettings;
+            Aimview = false;
             Chams = DefaultChamsSettings;
-            ContainerSettings = DefaultContainerSettings;
-            Corpses = false;
             DefaultZoom = 100;
             EnemyCount = false;
             ExfilNames = false;
@@ -420,9 +429,12 @@ namespace eft_dma_radar
             ImportantLootOnly = false;
             InfiniteStamina = false;
             InstantADS = false;
-            JumpPowerStrength = 0;
             Logging = false;
             LooseLoot = true;
+            LootContainerSettings = DefaultContainerSettings;
+            LootCorpses = false;
+            LootItemRefresh = false;
+            LootItemRefreshSettings = DefaultAutoRefreshSettings;
             LootItemViewer = false;
             LootPing = DefaultLootPingSettings;
             LootThroughWalls = false;
@@ -450,7 +462,12 @@ namespace eft_dma_radar
             PrimaryTeammateId = null;
             ProcessLoot = true;
             PvEMode = false;
-            QuestHelper = true;
+            QuestHelper = false;
+            QuestItems = false;
+            QuestLocations = false;
+            QuestLootItems = false;
+            QuestTaskRefresh = false;
+            QuestTaskRefreshDelay = 15;
             RadarStats = false;
             SubItems = false;
             ThermalVision = false;
