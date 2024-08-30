@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -822,98 +822,98 @@ public class Aimbot
             return distanceFromCenter < _config.AimbotFOV / 2f; // Adjusted for more stable FOV check
         }
 
-        public void AimerBotter()
+public void AimerBotter()
+{
+    if (_config == null)
+    {
+        Program.Log("Config is not initialized.");
+        return;
+    }
+    if (!InputHandla.done_init && keyboard.Init())
+    {
+        Program.Log("Keyboard hook initialized");
+    }
+
+    bool bHeld = keyboard.IsKeyDown(_config.AimbotKeybind);
+
+    try
+    {
+        if (this.InGame && !Memory.InHideout && _cameraManager != null && _config.EnableAimbot)
         {
-            if (_config == null)
+            // Target all alive players except teammates
+            var players = this.AllPlayers?.Select(x => x.Value)
+                .Where(x => x.IsActive && x.IsAlive && !x.IsFriendlyActive) // Exclude teammates
+                .Where(x => Vector3.Distance(LocalPlayer.Position, x.Position) <= _config.AimbotMaxDistance); // Check distance
+
+            if (players.Any())
             {
-                Program.Log("Config is not initialized.");
-                return;
-            }
-            if (!InputHandla.done_init && keyboard.Init())
-            {
-                Program.Log("Keyboard hook initialized");
-            }
-    
-            bool bHeld = keyboard.IsKeyDown(_config.AimbotKeybind);
-    
-            try
-            {
-                if (this.InGame && !Memory.InHideout && _cameraManager != null && _config.EnableAimbot)
+                this._cameraManager.GetViewmatrixAsync();
+
+                Vector2 currentAngles = LocalPlayer.GetRotationFr();
+                Vector3 cameraPos = GetFireportPos();
+
+                if (bHeld && bHeld == bLastHeld && udPlayer != null && udPlayer.IsAlive && udPlayer.IsActive)
                 {
-                    var players = this.AllPlayers?.Select(x => x.Value)
-                        .Where(x => x.IsActive && x.IsAlive && !x.IsFriendlyActive) // Ensure not targeting friendly players
-                        .Where(x => (_config.EnablePMC && x.IsPMC) || (_config.EnableTargetScavs && !x.IsPMC)) // Target based on PMC/Scav
-                        .Where(x => Vector3.Distance(LocalPlayer.Position, x.Position) <= _config.AimbotMaxDistance); // Check distance
-    
-                    if (players.Any())
+                    GetClosestBoneScr(udPlayer, out Vector2 bonePosScr, out Vector3 bonePos);
+                    if (IsWithinFOV(bonePosScr))
                     {
-                        this._cameraManager.GetViewmatrixAsync();
-    
-                        Vector2 currentAngles = LocalPlayer.GetRotationFr();
-                        Vector3 cameraPos = GetFireportPos();
-    
-                        if (bHeld && bHeld == bLastHeld && udPlayer != null && udPlayer.IsAlive && udPlayer.IsActive)
+                        Vector2 targetAngle = CalcAngle(cameraPos, bonePos);
+                        Vector2 smoothedAngle = SmoothAim(currentAngles, targetAngle, _config.AimbotSmoothness);
+
+                        if (!float.IsNaN(smoothedAngle.X) && !float.IsNaN(smoothedAngle.Y))
                         {
-                            GetClosestBoneScr(udPlayer, out Vector2 bonePosScr, out Vector3 bonePos);
-                            if (IsWithinFOV(bonePosScr))
+                            LocalPlayer.SetRotationFr(smoothedAngle);
+                        }
+                    }
+                }
+                else if (bHeld && (bHeld != bLastHeld || udPlayer == null || !udPlayer.IsAlive || !udPlayer.IsActive))
+                {
+                    Player closestPlayer = null;
+                    Vector3 closestPlayerBone = Vector3.Zero;
+                    double lastDist = double.MaxValue;
+
+                    foreach (var player in players)
+                    {
+                        GetClosestBoneScr(player, out Vector2 bonePosScr, out Vector3 bonePos);
+
+                        if (IsWithinFOV(bonePosScr))
+                        {
+                            var dist = _config.AimbotClosest
+                                ? Vector3.Distance(LocalPlayer.Position, player.Position) // Distance to player
+                                : Vector2.Distance(bonePosScr, new Vector2(1920f / 2f, 1080f / 2f)); // Distance to screen center
+
+                            if (dist < lastDist)
                             {
-                                Vector2 targetAngle = CalcAngle(cameraPos, bonePos);
-                                Vector2 smoothedAngle = SmoothAim(currentAngles, targetAngle, _config.AimbotSmoothness);
-    
-                                if (!float.IsNaN(smoothedAngle.X) && !float.IsNaN(smoothedAngle.Y))
-                                {
-                                    LocalPlayer.SetRotationFr(smoothedAngle);
-                                }
+                                closestPlayer = player;
+                                closestPlayerBone = bonePos;
+                                lastDist = dist;
                             }
                         }
-                        else if (bHeld && (bHeld != bLastHeld || udPlayer == null || !udPlayer.IsAlive || !udPlayer.IsActive))
+                    }
+
+                    if (closestPlayer != null)
+                    {
+                        Vector2 targetAngle = CalcAngle(cameraPos, closestPlayerBone);
+                        Vector2 smoothedAngle = SmoothAim(currentAngles, targetAngle, _config.AimbotSmoothness);
+
+                        if (!float.IsNaN(smoothedAngle.X) && !float.IsNaN(smoothedAngle.Y))
                         {
-                            Player closestPlayer = null;
-                            Vector3 closestPlayerBone = Vector3.Zero;
-                            double lastDist = double.MaxValue;
-    
-                            foreach (var player in players)
-                            {
-                                GetClosestBoneScr(player, out Vector2 bonePosScr, out Vector3 bonePos);
-    
-                                if (IsWithinFOV(bonePosScr))
-                                {
-                                    var dist = _config.AimbotClosest
-                                        ? Vector3.Distance(LocalPlayer.Position, player.Position) // Distance to player
-                                        : Vector2.Distance(bonePosScr, new Vector2(1920f / 2f, 1080f / 2f)); // Distance to screen center
-    
-                                    // Avoid skipping close AI by prioritizing them
-                                    if (dist < lastDist || dist < 1.5f)
-                                    {
-                                        closestPlayer = player;
-                                        closestPlayerBone = bonePos;
-                                        lastDist = dist;
-                                    }
-                                }
-                            }
-    
-                            if (closestPlayer != null)
-                            {
-                                Vector2 targetAngle = CalcAngle(cameraPos, closestPlayerBone);
-                                Vector2 smoothedAngle = SmoothAim(currentAngles, targetAngle, _config.AimbotSmoothness);
-    
-                                if (!float.IsNaN(smoothedAngle.X) && !float.IsNaN(smoothedAngle.Y))
-                                {
-                                    LocalPlayer.SetRotationFr(smoothedAngle);
-                                    udPlayer = closestPlayer;
-                                }
-                            }
+                            LocalPlayer.SetRotationFr(smoothedAngle);
+                            udPlayer = closestPlayer;
                         }
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                Program.Log($"ERROR -> Aimer botter -> {ex.Message}\nStackTrace:{ex.StackTrace}");
-            }
-    
-            bLastHeld = bHeld;
         }
+    }
+    catch (Exception ex)
+    {
+        Program.Log($"ERROR -> Aimer botter -> {ex.Message}\nStackTrace:{ex.StackTrace}");
+    }
+
+    bLastHeld = bHeld;
+}
+
     
         public void AimerBotterKmBox()
         {
