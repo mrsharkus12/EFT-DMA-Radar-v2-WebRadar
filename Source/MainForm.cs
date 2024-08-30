@@ -1,23 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Numerics;
-using System.Text;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 using MaterialSkin;
 using MaterialSkin.Controls;
 using eft_dma_radar.Properties;
-using System.Windows.Forms;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
-using static Vmmsharp.LeechCore;
-using System.ComponentModel;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
-using System;
-using Offsets;
 
 namespace eft_dma_radar
 {
@@ -523,6 +511,30 @@ namespace eft_dma_radar
             #region Memory Writing
             swMasterSwitch.Checked = _config.MasterSwitch;
 
+            // Aimbot specific settings
+            swAimview.Checked = _config.Aimview;
+            swExfilNames.Checked = _config.ExfilNames;
+            swHoverArmor.Checked = _config.HoverArmor;
+            txtTeammateID.Text = _config.PrimaryTeammateId;
+            sldrZoomSensitivity.Value = _config.ZoomSensitivity;
+            lblKeybind.Text = ((Keys)_config.AimbotKeybind).ToString();
+            sldrUIScale.Value = _config.UIScale;
+            cboGlobalFont.SelectedIndex = _config.GlobalFont;
+            sldrFontSize.Value = _config.GlobalFontSize;
+            swAimClosest.Checked = _config.AimbotClosest;
+            swEnableAimBot.Checked = _config.EnableAimbot;
+            swEnablePMC.Checked = _config.EnablePMC;
+            swEnableTargetScavs.Checked = _config.EnableTargetScavs;
+            swHeadAim.Checked = _config.AimbotHead;
+            swAimNeck.Checked = _config.AimbotNeck;
+            swAimChest.Checked = _config.AimbotChest;
+            swAimPelvis.Checked = _config.AimbotPelvis;
+            swAimRLeg.Checked = _config.AimbotRightLeg;
+            swAimLLeg.Checked = _config.AimbotLeftLeg;
+            sldrAimbotFOV.Value = (int)_config.AimbotFOV;
+            sldrAimbotSmoothness.Value = (int)_config.AimbotSmoothness;
+            sldrAimDistance.Value = (int)_config.AimbotMaxDistance;
+
             // Global Features
             mcSettingsMemoryWritingGlobal.Enabled = _config.MasterSwitch;
             swThirdperson.Checked = _config.Thirdperson;
@@ -740,6 +752,136 @@ namespace eft_dma_radar
         }        
         #endregion
         #region General Event Handlers
+        private void swEnableAimBot_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.EnableAimbot = swEnableAimBot.Checked;
+            Config.SaveConfig(_config);
+
+        }
+
+        private void swAimClosest_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.AimbotClosest = swAimClosest.Checked;
+            Config.SaveConfig(_config);
+
+        }
+
+        private void swEnablePMC_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.EnablePMC = swEnablePMC.Checked;
+            Config.SaveConfig(_config);
+
+        }
+
+        private void swEnableTargetScavs_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.EnableTargetScavs = swEnableTargetScavs.Checked;
+            Config.SaveConfig(_config);
+
+        }
+
+        private void swHeadAim_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.AimbotHead = swHeadAim.Checked;
+            Config.SaveConfig(_config);
+
+        }
+
+        private void swAimNeck_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.AimbotNeck = swAimNeck.Checked;
+            Config.SaveConfig(_config);
+
+        }
+
+        private void swAimChest_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.AimbotChest = swAimChest.Checked;
+            Config.SaveConfig(_config);
+
+        }
+
+        private void swAimPelvis_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.AimbotPelvis = swAimPelvis.Checked;
+            Config.SaveConfig(_config);
+
+        }
+
+        private void swAimRLeg_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.AimbotRightLeg = swAimRLeg.Checked;
+            Config.SaveConfig(_config);
+
+        }
+
+        private void swAimLLeg_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.AimbotLeftLeg = swAimLLeg.Checked;
+            Config.SaveConfig(_config);
+
+        }
+
+        private void sldrAimbotFOV_onValueChanged(object sender,  int newValue)
+        {
+            _config.AimbotFOV = sldrAimbotFOV.Value;
+            Config.SaveConfig(_config);
+
+        }
+
+        private void sldrAimbotSmoothness_onValueChanged(object sender,  int newValue)
+        {
+            _config.AimbotSmoothness = sldrAimbotSmoothness.Value;
+            Config.SaveConfig(_config);
+
+        }
+
+        private void sldrAimDistance_onValueChanged(object sender,  int newValue)
+        {
+            _config.AimbotMaxDistance = sldrAimDistance.Value;
+            Config.SaveConfig(_config);
+
+        }
+        private void lblKeybind_MouseClick(object sender, MouseEventArgs e)
+        {
+            lblKeybind.Text = "Press any key or mouse button...";
+            this.KeyPreview = true;
+            this.KeyDown += MainForm_KeyDown;
+            this.MouseDown += MainForm_MouseDown; // Subscribe to MouseDown event
+        }
+
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            lblKeybind.Text = e.KeyCode.ToString();
+            _config.AimbotKeybind = (int)e.KeyCode; // Save the keycode in your config
+            this.KeyDown -= MainForm_KeyDown; // Unsubscribe from the event
+            this.MouseDown -= MainForm_MouseDown; // Unsubscribe from MouseDown event
+        }
+
+        private void MainForm_MouseDown(object sender, MouseEventArgs e)
+        {
+            string mouseButton;
+            int mouseButtonCode;
+
+            switch (e.Button)
+            {
+                case MouseButtons.XButton1:
+                    mouseButton = "Mouse4";
+                    mouseButtonCode = 0x05; // Virtual key code for Mouse4
+                    break;
+                case MouseButtons.XButton2:
+                    mouseButton = "Mouse5";
+                    mouseButtonCode = 0x06; // Virtual key code for Mouse5
+                    break;
+                default:
+                    return;
+            }
+
+            lblKeybind.Text = mouseButton;
+            _config.AimbotKeybind = mouseButtonCode; // Save the mouse button code in your config
+            this.KeyDown -= MainForm_KeyDown; // Unsubscribe from the event
+            this.MouseDown -= MainForm_MouseDown; // Unsubscribe from MouseDown event
+        } 
         private async void frmMain_Shown(object sender, EventArgs e)
         {
             while (_mapCanvas.GRContext is null)
@@ -911,6 +1053,65 @@ namespace eft_dma_radar
 
         #region Radar Tab
         #region Helper Functions
+        private void UpdateAimbotControls()
+        {
+            // Update the slider values and their corresponding labels or settings
+            sldrAimbotFOV.Value = (int)_config.AimbotFOV;
+            sldrAimbotSmoothness.Value = (int)_config.AimbotSmoothness;
+            sldrAimDistance.Value = (int)_config.AimbotMaxDistance;
+
+            // Update the switch controls
+            swEnableAimBot.Checked = _config.EnableAimbot;
+            swEnablePMC.Checked = _config.EnablePMC;
+            swEnableTargetScavs.Checked = _config.EnableTargetScavs;
+
+            swHeadAim.Checked = _config.AimbotHead;
+            swAimNeck.Checked = _config.AimbotNeck;
+            swAimChest.Checked = _config.AimbotChest;
+            swAimPelvis.Checked = _config.AimbotPelvis;
+            swAimRLeg.Checked = _config.AimbotRightLeg;
+            swAimLLeg.Checked = _config.AimbotLeftLeg;
+
+            // If any settings require a visual update, apply those here
+            UpdateAimbotVisuals();
+        }
+
+        private void UpdateAimbotVisuals()
+        {
+            // Example: If enabling the aimbot should disable other controls, you can do that here
+            bool isAimbotEnabled = _config.EnableAimbot;
+
+            swEnablePMC.Enabled = isAimbotEnabled;
+            swEnableTargetScavs.Enabled = isAimbotEnabled;
+            swHeadAim.Enabled = isAimbotEnabled;
+            swAimNeck.Enabled = isAimbotEnabled;
+            swAimChest.Enabled = isAimbotEnabled;
+            swAimPelvis.Enabled = isAimbotEnabled;
+            swAimRLeg.Enabled = isAimbotEnabled;
+            swAimLLeg.Enabled = isAimbotEnabled;
+            sldrAimbotFOV.Enabled = isAimbotEnabled;
+            sldrAimbotSmoothness.Enabled = isAimbotEnabled;
+            sldrAimDistance.Enabled = isAimbotEnabled;
+        }
+
+        // Example of binding the event handlers to update the config when a control value changes
+        private void BindAimbotControlEvents()
+        {
+            swEnableAimBot.CheckedChanged += (sender, e) => _config.EnableAimbot = swEnableAimBot.Checked;
+            swEnablePMC.CheckedChanged += (sender, e) => _config.EnablePMC = swEnablePMC.Checked;
+            swEnableTargetScavs.CheckedChanged += (sender, e) => _config.EnableTargetScavs = swEnableTargetScavs.Checked;
+
+            swHeadAim.CheckedChanged += (sender, e) => _config.AimbotHead = swHeadAim.Checked;
+            swAimNeck.CheckedChanged += (sender, e) => _config.AimbotNeck = swAimNeck.Checked;
+            swAimChest.CheckedChanged += (sender, e) => _config.AimbotChest = swAimChest.Checked;
+            swAimPelvis.CheckedChanged += (sender, e) => _config.AimbotPelvis = swAimPelvis.Checked;
+            swAimRLeg.CheckedChanged += (sender, e) => _config.AimbotRightLeg = swAimRLeg.Checked;
+            swAimLLeg.CheckedChanged += (sender, e) => _config.AimbotLeftLeg = swAimLLeg.Checked;
+
+            sldrAimbotFOV.onValueChanged += (sender, e) => _config.AimbotFOV = sldrAimbotFOV.Value;
+            sldrAimbotSmoothness.onValueChanged += (sender, e) => _config.AimbotSmoothness = sldrAimbotSmoothness.Value;
+            sldrAimDistance.onValueChanged += (sender, e) => _config.AimbotMaxDistance = sldrAimDistance.Value;
+        }
         private void ResetVariables()
         {
             this._selectedMap = null;
@@ -1363,6 +1564,10 @@ namespace eft_dma_radar
                         if (player.HasNVG)
                             rightLines.Add("NVG");
 
+                    if (true)
+                        if (player.HasRequiredGear)
+                            rightLines.Add("GEAR");
+
                     if (playerSettings.Value)
                         rightLines.Add($"${TarkovDevManager.FormatNumber(player.Value)}");
 
@@ -1370,7 +1575,7 @@ namespace eft_dma_radar
                         rightLines.Add(player.GroupID.ToString());
 
                     if (playerSettings.Tag && !string.IsNullOrEmpty(player.Tag))
-                        rightLines.Add("Example Tag");
+                        rightLines.Add(player.Tag);
                 }
 
                 if (aimlineSettings.Length == 15)

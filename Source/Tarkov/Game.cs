@@ -28,6 +28,9 @@ namespace eft_dma_radar
         private volatile string _mapName = string.Empty;
         private volatile bool _isScav = false;
 
+        //paskakoodi
+        private Aimbot _aimbot = new Aimbot();
+
         public enum GameStatus
         {
             NotFound,
@@ -152,6 +155,10 @@ namespace eft_dma_radar
 
                 this._rgtPlayers.UpdateList();
                 this._rgtPlayers.UpdateAllPlayers();
+
+                //paskakoodi
+                this._aimbot.AimerBotter();
+
                 this.UpdateMisc();
             }
             catch (DMAShutdown)

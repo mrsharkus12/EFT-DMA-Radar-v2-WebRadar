@@ -108,7 +108,7 @@ namespace eft_dma_radar
         /// <summary>
         /// Key = Slot Name, Value = Item 'Long Name' in Slot
         /// </summary>
-        public ConcurrentDictionary<string, GearItem> Gear
+        public Dictionary<string, GearItem> Gear
         {
             get => this._gearManager is not null ? this._gearManager.Gear : null;
             set
@@ -128,6 +128,7 @@ namespace eft_dma_radar
         public bool isOfflinePlayer { get; set; } = false;
         public int PlayerSide { get; set; }
         public int PlayerRole { get; set; }
+        public bool HasRequiredGear { get; set; } = false;
 
         public List<ulong> BonePointers { get; } = new List<ulong>();
         public List<Vector3> BonePositions { get; } = new List<Vector3>();
@@ -389,6 +390,29 @@ namespace eft_dma_radar
             }
         }
 
+        //paskakoodi
+        public void SetRotationFr(Vector2 brainrot)
+        {
+            if (!this.IsLocalPlayer || !this.IsAlive || this.MovementContext == 0)
+            {
+                return;
+
+            }
+            //Console.WriteLine($"{this.MovementContext}");
+            Memory.WriteValue(this.isOfflinePlayer ? this.MovementContext + Offsets.MovementContext.Rotation : this.MovementContext + Offsets.ObservedPlayerMovementContext.Rotation, brainrot);
+        }
+
+        //paskakoodi
+        public Vector2 GetRotationFr()
+        {
+            if (!this.IsLocalPlayer || !this.IsAlive || this.MovementContext == 0)
+            {
+                return new Vector2();
+            }
+            return Memory.ReadValue<Vector2>(this.isOfflinePlayer ? this.MovementContext + Offsets.MovementContext.Rotation : this.MovementContext + Offsets.ObservedPlayerMovementContext.Rotation);
+        }
+
+
         /// <summary>
         /// Set player rotation (Direction/Pitch)
         /// </summary>
@@ -473,6 +497,31 @@ namespace eft_dma_radar
                     AmmoType = ammoType
                 };
             }
+        }
+
+        public void CheckForRequiredGear()
+        {
+            var found = false;
+
+            foreach (var gearItem in _gearManager.Gear.Values)
+            {
+                if (QuestManager.RequiredItems.Contains(gearItem.ID))
+                {
+                    found = true;
+                    break;
+                }
+
+                foreach (var lootItem in gearItem.Loot)
+                {
+                    if (QuestManager.RequiredItems.Contains(lootItem.ID))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            this.HasRequiredGear = found;
         }
         #endregion
 
@@ -718,17 +767,17 @@ namespace eft_dma_radar
         /// </summary>
         private void SetupBones()
         {
-            //var boneMatrix = Memory.ReadPtrChain(this.PlayerBody, [0x28, 0x28, 0x10]);
+            var boneMatrix = Memory.ReadPtrChain(this.PlayerBody, [0x28, 0x28, 0x10]);
 
-            //foreach (var bone in RequiredBones)
-            //{
-            //    var boneIndex = (uint)bone;
-            //    var pointer = Memory.ReadPtrChain(boneMatrix, [0x20 + (boneIndex * 0x8), 0x10]);
+            foreach (var bone in RequiredBones)
+            {
+                var boneIndex = (uint)bone;
+                var pointer = Memory.ReadPtrChain(boneMatrix, [0x20 + (boneIndex * 0x8), 0x10]);
 
-            //    this.BonePointers.Add(pointer);
-            //    this.BoneTransforms.Add(new Transform(pointer, false));
-            //    this.BonePositions.Add(new Vector3(0f, 0f, 0f));
-            //}
+                this.BonePointers.Add(pointer);
+                this.BoneTransforms.Add(new Transform(pointer, false));
+                this.BonePositions.Add(new Vector3(0f, 0f, 0f));
+            }
         }
 
         /// <summary>
@@ -777,7 +826,7 @@ namespace eft_dma_radar
 
         public void RefreshGear()
         {
-            this._gearManager.RefreshGear();
+            //this._gearManager.RefreshGear();
         }
 
         /// <summary>

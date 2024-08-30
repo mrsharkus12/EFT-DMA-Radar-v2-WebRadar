@@ -5,10 +5,54 @@ namespace eft_dma_radar
 {
     public class Config
     {
-        #region Json Properties
-        [JsonPropertyName("hostname")]
-        public string Hostname { get; set; }     
+        // New properties for WEb+Aimbot
+        [JsonPropertyName("aimbotFOV")]
+        public int AimbotFOV { get; set; }
 
+        [JsonPropertyName("aimbotMaxDistance")]
+        public int AimbotMaxDistance { get; set; }
+
+        [JsonPropertyName("aimbotKeybind")]
+        public int AimbotKeybind { get; set; }
+
+        [JsonPropertyName("aimbotSmoothness")]
+        public int AimbotSmoothness { get; set; }
+
+        [JsonPropertyName("aimbotHead")]
+        public bool AimbotHead { get; set; }
+
+        [JsonPropertyName("aimbotNeck")]
+        public bool AimbotNeck { get; set; }
+
+        [JsonPropertyName("aimbotChest")]
+        public bool AimbotChest { get; set; }
+
+        [JsonPropertyName("aimbotPelvis")]
+        public bool AimbotPelvis { get; set; }
+
+        [JsonPropertyName("aimbotRightLeg")]
+        public bool AimbotRightLeg { get; set; }
+
+        [JsonPropertyName("aimbotLeftLeg")]
+        public bool AimbotLeftLeg { get; set; }
+
+        [JsonPropertyName("enableAimbot")]
+        public bool EnableAimbot { get; set; }
+
+        [JsonPropertyName("aimbotClosest")]
+        public bool AimbotClosest { get; set; }
+
+        [JsonPropertyName("enablePMC")]
+        public bool EnablePMC { get; set; }
+
+        [JsonPropertyName("enableTargetScavs")]
+        public bool EnableTargetScavs { get; set; } 
+
+        [JsonPropertyName("hostname")]
+        public string Hostname { get; set; }   
+
+       // New properties for Aimbot END        
+        #region Json Properties
         [JsonPropertyName("aimview")]
         public bool Aimview { get; set; }
 
@@ -412,7 +456,6 @@ namespace eft_dma_radar
 
         public Config()
         {
-            Hostname = "localhost";
             AimViewFOV = 30;
             Aimview = false;
             Chams = DefaultChamsSettings;
@@ -480,6 +523,22 @@ namespace eft_dma_radar
             UnknownQuestItems = false;
             VSync = true;
             ZoomSensitivity = 25;
+            //Web+Aimbot
+            AimbotFOV = 30;
+            AimbotMaxDistance = 200;
+            AimbotKeybind = 0x05; // Example: Mouse button 5
+            AimbotSmoothness = 100;
+            AimbotHead = false;  // Enable aiming at the head
+            AimbotNeck = false; // Disable aiming at the neck
+            AimbotChest = false; // Enable aiming at the chest
+            AimbotPelvis = false; // Disable aiming at the pelvis
+            AimbotRightLeg = false; // Disable aiming at the right leg
+            AimbotLeftLeg = false; // Disable aiming at the left leg
+            EnableAimbot = false; // Enable the aimbot feature
+            AimbotClosest = false;
+            EnablePMC = false; // Enable aiming at PMC targets
+            EnableTargetScavs = false; // Enable aiming at SCAV targets
+            Hostname = "localhost";
         }
 
         /// <summary>
