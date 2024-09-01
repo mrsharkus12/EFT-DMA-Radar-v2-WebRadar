@@ -52,6 +52,7 @@
             hostnameTextBox = new MaterialSkin.Controls.MaterialTextBox2();
             materialSaveBtn = new MaterialSkin.Controls.MaterialButton();
             materialCard1 = new MaterialSkin.Controls.MaterialCard();
+            PublicHostname = new MaterialSkin.Controls.MaterialTextBox2();
             materialLabel1 = new MaterialSkin.Controls.MaterialLabel();
             WebRadar = new TabPage();
             colDialog = new ColorDialog();
@@ -405,6 +406,7 @@
             colLootFilterItemName = new ColumnHeader();
             colLootFilterItemValue = new ColumnHeader();
             iconList = new ImageList(components);
+            swGetLink = new MaterialSkin.Controls.MaterialSwitch();
             tabSettingAimbot.SuspendLayout();
             mcAimBotSettings.SuspendLayout();
             materialCard1.SuspendLayout();
@@ -802,13 +804,13 @@
             // 
             swStartWebServer.Depth = 0;
             swStartWebServer.Font = new Font("Segoe UI", 9F);
-            swStartWebServer.Location = new Point(207, 57);
+            swStartWebServer.Location = new Point(17, 111);
             swStartWebServer.Margin = new Padding(0);
             swStartWebServer.MouseLocation = new Point(-1, -1);
             swStartWebServer.MouseState = MaterialSkin.MouseState.HOVER;
             swStartWebServer.Name = "swStartWebServer";
             swStartWebServer.Ripple = true;
-            swStartWebServer.Size = new Size(197, 28);
+            swStartWebServer.Size = new Size(197, 36);
             swStartWebServer.TabIndex = 6;
             swStartWebServer.Text = "Start/Stop Server";
             toolTip.SetToolTip(swStartWebServer, "Starts and Stops WebServer to host WebRadar on localhost.");
@@ -825,7 +827,7 @@
             hostnameTextBox.HideSelection = true;
             hostnameTextBox.Hint = "Hostname";
             hostnameTextBox.LeadingIcon = null;
-            hostnameTextBox.Location = new Point(207, 110);
+            hostnameTextBox.Location = new Point(247, 110);
             hostnameTextBox.MaxLength = 32767;
             hostnameTextBox.MouseState = MaterialSkin.MouseState.OUT;
             hostnameTextBox.Name = "hostnameTextBox";
@@ -855,7 +857,7 @@
             materialSaveBtn.Font = new Font("Segoe UI", 8F);
             materialSaveBtn.HighEmphasis = true;
             materialSaveBtn.Icon = null;
-            materialSaveBtn.Location = new Point(412, 110);
+            materialSaveBtn.Location = new Point(482, 110);
             materialSaveBtn.Margin = new Padding(4, 6, 4, 6);
             materialSaveBtn.MouseState = MaterialSkin.MouseState.HOVER;
             materialSaveBtn.Name = "materialSaveBtn";
@@ -872,6 +874,8 @@
             // materialCard1
             // 
             materialCard1.BackColor = Color.FromArgb(255, 255, 255);
+            materialCard1.Controls.Add(swGetLink);
+            materialCard1.Controls.Add(PublicHostname);
             materialCard1.Controls.Add(materialSaveBtn);
             materialCard1.Controls.Add(hostnameTextBox);
             materialCard1.Controls.Add(materialLabel1);
@@ -885,6 +889,37 @@
             materialCard1.Padding = new Padding(14);
             materialCard1.Size = new Size(633, 202);
             materialCard1.TabIndex = 33;
+            // 
+            // PublicHostname
+            // 
+            PublicHostname.AnimateReadOnly = false;
+            PublicHostname.BackgroundImageLayout = ImageLayout.None;
+            PublicHostname.CharacterCasing = CharacterCasing.Normal;
+            PublicHostname.Depth = 0;
+            PublicHostname.Font = new Font("Microsoft Sans Serif", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            PublicHostname.HideSelection = true;
+            PublicHostname.Hint = "PublicHostname";
+            PublicHostname.LeadingIcon = null;
+            PublicHostname.Location = new Point(153, 56);
+            PublicHostname.MaxLength = 32767;
+            PublicHostname.MouseState = MaterialSkin.MouseState.OUT;
+            PublicHostname.Name = "PublicHostname";
+            PublicHostname.PasswordChar = '\0';
+            PublicHostname.PrefixSuffixText = null;
+            PublicHostname.ReadOnly = false;
+            PublicHostname.RightToLeft = RightToLeft.No;
+            PublicHostname.SelectedText = "";
+            PublicHostname.SelectionLength = 0;
+            PublicHostname.SelectionStart = 0;
+            PublicHostname.ShortcutsEnabled = true;
+            PublicHostname.Size = new Size(432, 36);
+            PublicHostname.TabIndex = 37;
+            PublicHostname.TabStop = false;
+            PublicHostname.TextAlign = HorizontalAlignment.Left;
+            toolTip.SetToolTip(PublicHostname, "Share this link with your friends!");
+            PublicHostname.TrailingIcon = null;
+            PublicHostname.UseSystemPasswordChar = false;
+            PublicHostname.UseTallSize = false;
             // 
             // materialLabel1
             // 
@@ -6760,6 +6795,23 @@
             iconList.Images.SetKeyName(3, "watchlist.png");
             iconList.Images.SetKeyName(4, "loot.png");
             // 
+            // swGetLink
+            // 
+            swGetLink.Depth = 0;
+            swGetLink.Font = new Font("Segoe UI", 9F);
+            swGetLink.Location = new Point(17, 56);
+            swGetLink.Margin = new Padding(0);
+            swGetLink.MouseLocation = new Point(-1, -1);
+            swGetLink.MouseState = MaterialSkin.MouseState.HOVER;
+            swGetLink.Name = "swGetLink";
+            swGetLink.Ripple = true;
+            swGetLink.Size = new Size(133, 36);
+            swGetLink.TabIndex = 38;
+            swGetLink.Text = "Get Link";
+            toolTip.SetToolTip(swGetLink, "Starts and Stops WebServer to host WebRadar on localhost.");
+            swGetLink.UseVisualStyleBackColor = true;
+            swGetLink.CheckedChanged += swGetLink_CheckedChanged;
+            // 
             // frmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -7275,6 +7327,8 @@
         private MaterialSkin.Controls.MaterialLabel materialLabel1;
         private MaterialSkin.Controls.MaterialButton materialSaveBtn;
         private MaterialSkin.Controls.MaterialSwitch swStartWebServer;
+        private MaterialSkin.Controls.MaterialTextBox2 PublicHostname;
+        private MaterialSkin.Controls.MaterialSwitch swGetLink;
         //WebRadar
     }        
     

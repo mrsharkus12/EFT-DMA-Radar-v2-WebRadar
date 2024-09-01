@@ -5,6 +5,11 @@ using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 using MaterialSkin;
 using MaterialSkin.Controls;
+using System.Text.RegularExpressions;
+using System;
+using System.Runtime.InteropServices;
+using System.Threading;
+using Renci.SshNet;
 using eft_dma_radar.Properties;
 
 namespace eft_dma_radar
@@ -79,7 +84,8 @@ namespace eft_dma_radar
         //WebRadar
         private IHost _webHost;
         //WebRadar
-
+        private Process _sshProcess;
+        private SshClient _sshClient;        
         #region Getters
         /// <summary>
         /// Radar has found Escape From Tarkov process and is ready.
@@ -668,58 +674,226 @@ namespace eft_dma_radar
         }
         #endregion
         #region WebRadar
-        private void swStartWebServer_CheckedChanged(object sender, EventArgs e)
+private void swStartWebServer_CheckedChanged(object sender, EventArgs e)
+{
+    Program.Log($"Switch CheckedChanged event fired. Checked: {swStartWebServer.Checked}");
+    if (swStartWebServer.Checked)
+    {
+        // Start the server
+        Program.Log("[WebRadar] Attempting to start the web server...");
+        StartWebServer();
+    }
+    else
+    {
+        // Stop the server
+        Program.Log("[WebRadar] Attempting to stop the web server...");
+        StopWebServer();
+    }
+}
+private void swGetLink_CheckedChanged(object sender, EventArgs e)
+{
+    Program.Log($"Switch CheckedChanged event fired. Checked: {swGetLink.Checked}");
+    if (swStartWebServer.Checked)
+    {
+        // Start the server
+        Program.Log("[WebRadar] Attempting to proxy your webserver...");
+        ExecuteSshTunnel();
+    }
+    else
+    {
+        // Stop the server
+        Program.Log("[WebRadar] Attempting to stop proxy of your webserver...");
+        StopSshTunnel();
+    }
+}
+
+private void StartWebServer()
+{
+    if (_webHost == null)
+    {
+        try
         {
-            Program.Log($"Switch CheckedChanged event fired. Checked: {swStartWebServer.Checked}");
-            if (swStartWebServer.Checked)
+            _webHost = Program.CreateHostBuilder(null).Build();
+            var serverTask = new Task(() =>
             {
-                // Start the server
-                Program.Log("Attempting to start the web server...");
-                StartWebServer();
+                _webHost.Run();
+            });
+            serverTask.Start();
+            Program.Log("Web server started.");
+        }
+        catch (Exception ex)
+        {
+            Program.Log($"Error starting web server: {ex.Message}");
+        }
+    }
+}
+
+private void ExecuteSshTunnel()
+{
+    Task.Run(() =>
+    {
+        try
+        {
+            string sshCommand = "ssh -o StrictHostKeyChecking=no eft@45.61.62.23";
+            Program.Log("[WebRadar] Starting SSH tunnel with command: " + sshCommand);
+
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = $"/K {sshCommand}", // Use /K to keep the console open
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false, // Must be false to capture output
+                CreateNoWindow = false // Show the window
+            };
+
+            _sshProcess = new Process { StartInfo = startInfo };
+            _sshProcess.OutputDataReceived += (sender, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    Program.Log(e.Data);
+
+                    if (e.Data.Contains("Your subdomain is:"))
+                    {
+                        var link = ExtractPublicHostname(e.Data);
+                        Invoke(new Action(() => DisplayLinkInGui(link)));
+                    }
+                }
+            };
+
+            _sshProcess.ErrorDataReceived += (sender, e) => Program.Log("ERROR: " + e.Data);
+
+            _sshProcess.Start();
+            _sshProcess.BeginOutputReadLine();
+            _sshProcess.BeginErrorReadLine();
+
+            Program.Log("SSH tunnel started.");
+            _sshProcess.WaitForExit();
+        }
+        catch (Exception ex)
+        {
+            Program.Log($"[WebRadar] Error executing SSH tunnel: {ex.Message}");
+        }
+    });
+}
+
+private void DisplayLinkInGui(string link)
+{
+    PublicHostname.Text = link;
+    hostnameTextBox.Text = link;
+
+            // Update the Config object with the new hostname
+            _config.Hostname = hostnameTextBox.Text;
+            Program.Log("Hostname set to: " + _config.Hostname); // Debug line
+
+            // Save the Config object to the configuration file
+            Config.SaveConfig(_config);    
+}
+
+private string ExtractPublicHostname(string sshOutput)
+{
+    var match = Regex.Match(sshOutput, @"Your subdomain is:\s*(\S+)");
+    return match.Success ? match.Groups[1].Value : "[WebRadar] Hostname not found";
+}
+
+private async void StopWebServer()
+{
+    if (_webHost != null)
+    {
+        try
+        {
+            await _webHost.StopAsync(); // Use await instead of .Wait() to avoid blocking the UI thread
+            _webHost.Dispose();
+            _webHost = null;
+            Program.Log("[WebRadar] Web server stopped.");
+            
+        }
+        catch (Exception ex)
+        {
+            Program.Log($"[WebRadar] Error stopping web server: {ex.Message}");
+        }
+    }
+}
+
+private void StopSshTunnel()
+{
+    try
+    {
+        if (_sshProcess != null && !_sshProcess.HasExited)
+        {
+            Program.Log("[WebRadar] Attempting to close the SSH tunnel...");
+
+            _sshProcess.Kill(); // Close the CMD window, which will also stop the SSH tunnel
+
+            _sshProcess.Dispose();
+            _sshProcess = null;
+            Program.Log("[WebRadar] SSH tunnel stopped.");
+        }
+    }
+    catch (Exception ex)
+    {
+        Program.Log($"[WebRadar] Error stopping SSH tunnel: {ex.Message}");
+    }
+}
+private void GenerateCtrlC(Process process)
+{
+    if (process != null && !process.HasExited)
+    {
+        try
+        {
+            // Attempt to attach to the process's console
+            if (AttachConsole((uint)process.Id))
+            {
+                Program.Log($"Successfully attached to the console of process {process.Id}");
+
+                SetConsoleCtrlHandler(null, true);  // Disable Ctrl+C handling in the current process
+                if (GenerateConsoleCtrlEvent(ConsoleCtrlEvent.CTRL_C, 0))
+                {
+                    Program.Log("Ctrl+C event sent successfully.");
+                }
+                else
+                {
+                    Program.Log("Failed to send Ctrl+C event.");
+                }
+                FreeConsole();  // Detach from the console
+                SetConsoleCtrlHandler(null, false); // Re-enable Ctrl+C handling
             }
             else
             {
-                // Stop the server
-                Program.Log("Attempting to stop the web server...");
-                StopWebServer();
+                Program.Log($"Failed to attach to the console of process {process.Id}");
             }
         }
-
-        private void StartWebServer()
+        catch (Exception ex)
         {
-            if (_webHost == null)
-            {
-                try
-                {
-                    _webHost = Program.CreateHostBuilder(null).Build();
-                    var serverTask = new Task(() => _webHost.Run());
-                    serverTask.Start();
-                    Program.Log("Web server started.");
-                }
-                catch (Exception ex)
-                {
-                    Program.Log($"Error starting web server: {ex.Message}");
-                }
-            }
+            Program.Log($"Failed to send Ctrl+C to SSH process: {ex.Message}");
         }
+    }
+}
 
-        private async void StopWebServer()
-        {
-            if (_webHost != null)
-            {
-                try
-                {
-                    await _webHost.StopAsync(); // Use await instead of .Wait() to avoid blocking the UI thread
-                    _webHost.Dispose();
-                    _webHost = null;
-                    Program.Log("Web server stopped.");
-                }
-                catch (Exception ex)
-                {
-                    Program.Log($"Error stopping web server: {ex.Message}");
-                }
-            }
-        }
+[DllImport("kernel32.dll", SetLastError = true)]
+private static extern bool AttachConsole(uint dwProcessId);
+
+[DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+private static extern bool FreeConsole();
+
+[DllImport("kernel32.dll")]
+private static extern bool SetConsoleCtrlHandler(ConsoleCtrlDelegate handler, bool add);
+
+private delegate bool ConsoleCtrlDelegate(ConsoleCtrlEvent sig);
+
+[DllImport("kernel32.dll")]
+private static extern bool GenerateConsoleCtrlEvent(ConsoleCtrlEvent sigevent, uint dwProcessGroupId);
+
+private enum ConsoleCtrlEvent
+{
+    CTRL_C = 0,
+    CTRL_BREAK = 1,
+    CTRL_CLOSE = 2,
+    CTRL_LOGOFF = 5,
+    CTRL_SHUTDOWN = 6
+}
+
         private void materialSaveBtn_Click(object sender, EventArgs e)
         {
 
