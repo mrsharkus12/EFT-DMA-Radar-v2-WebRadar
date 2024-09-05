@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -396,7 +396,7 @@ namespace eft_dma_radar
                 Program.Log("Failed to initialize input handler in 3+ attempts");
                 return false;
             }
-            
+
             var meow = mem.RegValueRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\CurrentBuild", out _);
             var Winver = Int32.Parse(System.Text.Encoding.Unicode.GetString(meow));
 
@@ -546,53 +546,58 @@ namespace eft_dma_radar
             return (state_bitmap[(virtual_key_code * 2 / 8)] & 1 << virtual_key_code % 4 * 2) != 0;
         }
     }
-public class Aimbot
-{
-    private Player udPlayer;
-    bool bLastHeld;
-    private static InputHandla keyboard = new InputHandla();
-    private Config _config
-    {
-        get => Program.Config;
-    }
-    public KeyChecker _keyChecker = new KeyChecker();
-    
-    public static float Rad2Deg(float rad)
-    {
-        return rad * (180.0f / (float)Math.PI);
-    }
-
-    private static void NormalizeAngle(ref Vector2 angle)
-    {
-        var newX = angle.X switch
+        public class Aimbot
         {
-            <= -180f => angle.X + 360f,
-            > 180f => angle.X - 360f,
-            _ => angle.X
-        };
+            private Config _config;  // Declare _config
 
-        var newY = angle.Y switch
+            private float _aimbotFOV;        // Field of View
+            private float _aimbotMaxDistance; // Max Distance
+            private int _aimbotKeybind;      // Keybind
+
+            public Aimbot()
+            {
+                _config = Program.Config;  // Initialize _config from Program.Config
+            }   
+        private Player udPlayer;
+        bool bLastHeld;
+        private static InputHandla keyboard = new InputHandla();
+
+        public KeyChecker _keyChecker = new KeyChecker();
+        public static float Rad2Deg(float rad)
         {
-            > 90f => angle.Y - 180f,
-            <= -90f => angle.Y + 180f,
-            _ => angle.Y
-        };
+            return rad * (180.0f / (float)Math.PI);
+        }
+        private static void NormalizeAngle(ref Vector2 angle)
+        {
+            var newX = angle.X switch
+            {
+                <= -180f => angle.X + 360f,
+                > 180f => angle.X - 360f,
+                _ => angle.X
+            };
 
-        angle = new Vector2(newX, newY);
-    }
+            var newY = angle.Y switch
+            {
+                > 90f => angle.Y - 180f,
+                <= -90f => angle.Y + 180f,
+                _ => angle.Y
+            };
 
-    public static Vector2 CalcAngle(Vector3 source, Vector3 destination)
-    {
-        Vector3 difference = source - destination;
-        float length = difference.Length();
-        Vector2 ret = new Vector2();
+            angle = new Vector2(newX, newY);
+        }
 
-        ret.Y = (float)Math.Asin(difference.Y / length);
-        ret.X = -(float)Math.Atan2(difference.X, -difference.Z);
-        ret = new Vector2(ret.X * 57.29578f, ret.Y * 57.29578f);
+        public static Vector2 CalcAngle(Vector3 source, Vector3 destination)
+        {
+            Vector3 difference = source - destination;
+            float length = difference.Length();
+            Vector2 ret = new Vector2();
 
-        return ret;
-    }
+            ret.Y = (float)Math.Asin(difference.Y / length);
+            ret.X = -(float)Math.Atan2(difference.X, -difference.Z);
+            ret = new Vector2(ret.X * 57.29578f, ret.Y * 57.29578f);
+
+            return ret;
+        }
 
 
         public class KeyChecker
@@ -726,180 +731,178 @@ public class Aimbot
             }
 
             var boneMatrix = Memory.ReadPtrChain(player.PlayerBody, [0x28, 0x28, 0x10]);
-            var pointer = Memory.ReadPtrChain(boneMatrix, [0x20 + ((uint)PlayerBones.HumanPelvis * 0x8), 0x10]);
+            var pointer = Memory.ReadPtrChain(boneMatrix, [0x20 + ((uint)PlayerBones.HumanHead * 0x8), 0x10]);
             Transform headTranny = new Transform(pointer, false);
             return headTranny.GetPosition();
         }
-        public Vector3 GetBone(Player player, PlayerBones bone)
-        {
-            if (!this.InGame || Memory.InHideout || !player.IsAlive)
-            {
-                return new Vector3();
-            }
 
-            var boneMatrix = Memory.ReadPtrChain(player.PlayerBody, new uint[] { 0x28, 0x28, 0x10 });
-            var pointer = Memory.ReadPtrChain(boneMatrix, new uint[] { 0x20 + ((uint)bone * 0x8), 0x10 });
-            Transform boneTranny = new Transform(pointer, false);
-            return boneTranny.GetPosition();
-        }
-        public bool GetClosestBoneScr(Player player, out Vector2 screen, out Vector3 pos)
+        public bool GetHeadScr(Player player, out Vector2 screen, out Vector3 pos)
         {
             screen = new Vector2();
             pos = new Vector3();
-            float closestDist = float.MaxValue;
-            Vector2 closestScreen = new Vector2();
-            Vector3 closestPos = new Vector3();
-    
-            // Check each bone switch
-            if (_config.AimbotHead)
-                TryUpdateClosestBone(player, PlayerBones.HumanHead, ref closestDist, ref closestScreen, ref closestPos);
-            if (_config.AimbotNeck)
-                TryUpdateClosestBone(player, PlayerBones.HumanNeck, ref closestDist, ref closestScreen, ref closestPos);
-            if (_config.AimbotChest)
-                TryUpdateClosestBone(player, PlayerBones.HumanSpine3, ref closestDist, ref closestScreen, ref closestPos);
-            if (_config.AimbotPelvis)
-                TryUpdateClosestBone(player, PlayerBones.HumanPelvis, ref closestDist, ref closestScreen, ref closestPos);
-            if (_config.AimbotRightLeg)
-                TryUpdateClosestBone(player, PlayerBones.HumanRCalf, ref closestDist, ref closestScreen, ref closestPos);
-            if (_config.AimbotLeftLeg)
-                TryUpdateClosestBone(player, PlayerBones.HumanLCalf, ref closestDist, ref closestScreen, ref closestPos);
-    
-            if (closestDist < float.MaxValue)
+            if (player.BoneTransforms != null && player.BoneTransforms.Count != 0 && !player.IsLocalPlayer && !player.IsFriendlyActive && player.IsAlive && player.IsActive && Vector3.Distance(player.Position, LocalPlayer.Position) < 100)
             {
-                screen = closestScreen;
-                pos = closestPos;
-                return true;
-            }
-    
-            return false;
-        }
-    
-        private void TryUpdateClosestBone(Player player, PlayerBones bone, ref float closestDist, ref Vector2 closestScreen, ref Vector3 closestPos)
-        {
-            Vector3 bonePos = GetBone(player, bone);
-            Vector3 transformedPos = new Vector3(bonePos.X, bonePos.Z, bonePos.Y);
-    
-            if (WorldToScreen(transformedPos, out Vector2 boneScreen))
-            {
-                float dist = Vector2.Distance(boneScreen, new Vector2(1920f / 2f, 1080f / 2f));
-                if (dist < closestDist)
+                Vector3 temp = GetHead(player);
+                Vector3 HeadPos = new Vector3(temp.X, temp.Z, temp.Y);
+                if (WorldToScreen(HeadPos, out Vector2 scrpos))
                 {
-                    closestDist = dist;
-                    closestScreen = boneScreen;
-                    closestPos = transformedPos;
+                    screen = scrpos;
+                    pos = HeadPos;
+                    return true;
                 }
             }
+            return false;
         }
 
-        private PlayerBones ConvertBoneNameToEnum(string boneName)
+
+        //public bool GetHeadScr(Player player, out Vector2 screen, out Vector3 pos)
+        //{
+        //    screen = new Vector2();
+        //    pos = new Vector3();
+        //    if (player.BoneTransforms != null && player.BoneTransforms.Count != 0 && !player.IsLocalPlayer && player.IsAlive && player.IsActive && Vector3.Distance(player.Position, LocalPlayer.Position) < 100)
+        //    {
+        //        int headBoneIndex = player.RequiredBones.IndexOf(PlayerBones.HumanHead);
+        //        if (headBoneIndex >= 0 && headBoneIndex < player.BoneTransforms.Count && player.BoneTransforms[headBoneIndex] != null)
+        //        {
+        //            if (player.BoneTransforms[headBoneIndex] is not null)
+        //            {
+        //                Vector3 temp = player.BoneTransforms[headBoneIndex].GetPosition();
+
+        //                Vector3 HeadPos = new Vector3(temp.X, temp.Z, temp.Y);
+        //                Vector2 scrpos = new Vector2(0, 0);
+
+        //                if (WorldToScreen(HeadPos, out scrpos))
+        //                {
+        //                    screen = scrpos;
+        //                    pos = HeadPos;
+        //                    return true;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return false;
+        //}
+
+public bool GetBoneScr(Player player, PlayerBones bone, out Vector2 screen, out Vector3 pos)
+{
+    screen = new Vector2();
+    pos = new Vector3();
+
+    if (player.BoneTransforms != null && player.BoneTransforms.Count != 0 && !player.IsLocalPlayer && !player.IsFriendlyActive && player.IsAlive && player.IsActive && Vector3.Distance(player.Position, LocalPlayer.Position) < _config.AimbotMaxDistance)
+    {
+        Vector3 temp = GetBonePosition(player, bone);
+        Vector3 BonePos = new Vector3(temp.X, temp.Z, temp.Y);
+        if (WorldToScreen(BonePos, out Vector2 scrpos))
         {
-            return boneName switch
-            {
-                "Head" => PlayerBones.HumanHead,
-                "Neck" => PlayerBones.HumanNeck,
-                "Chest" => PlayerBones.HumanSpine3,
-                "Stomach" => PlayerBones.HumanPelvis,
-                "RightLeg" => PlayerBones.HumanRCalf,
-                "LeftLeg" => PlayerBones.HumanLCalf,
-                _ => PlayerBones.HumanHead // Default to Head
-            };
+            screen = scrpos;
+            pos = BonePos;
+            return true;
         }
+    }
+    return false;
+}
 
-        private Vector2 SmoothAim(Vector2 currentAngle, Vector2 targetAngle, float smoothness)
-        {
-            smoothness = Math.Clamp(smoothness, 0f, 100f) / 100f;
-            Vector2 smoothedAngle = new Vector2(
-                currentAngle.X + (targetAngle.X - currentAngle.X) * smoothness,
-                currentAngle.Y + (targetAngle.Y - currentAngle.Y) * smoothness
-            );
-            return smoothedAngle;
-        }
+public Vector3 GetBonePosition(Player player, PlayerBones bone)
+{
+    if (!this.InGame || Memory.InHideout || !player.IsAlive)
+    {
+        return new Vector3();
+    }
 
-        private bool IsWithinFOV(Vector2 bonePosScr)
-        {
-            var screenCenter = new Vector2(1920f / 2f, 1080f / 2f);
-            var distanceFromCenter = Vector2.Distance(bonePosScr, screenCenter);
-            return distanceFromCenter < _config.AimbotFOV / 2f; // Adjusted for more stable FOV check
-        }
+    var boneMatrix = Memory.ReadPtrChain(player.PlayerBody, [0x28, 0x28, 0x10]);
+    var pointer = Memory.ReadPtrChain(boneMatrix, [0x20 + ((uint)bone * 0x8), 0x10]);
+    Transform boneTransform = new Transform(pointer, false);
+    return boneTransform.GetPosition();
+}
 
+// Updated AimerBotter to use GetBoneScr for targeting multiple bones
 public void AimerBotter()
 {
-    if (_config == null)
+    _aimbotFOV = _config.AimbotFOV;
+    _aimbotMaxDistance = _config.AimbotMaxDistance; // Max targeting distance
+    _aimbotKeybind = _config.AimbotKeybind;
+    bool aimbotClosest = _config.AimbotClosest;  // Whether to target the closest player
+
+    if (!InputHandla.done_init)
     {
-        Program.Log("Config is not initialized.");
-        return;
-    }
-    if (!InputHandla.done_init && keyboard.Init())
-    {
-        Program.Log("Keyboard hook initialized");
+        if (keyboard.Init())
+            Program.Log("Keyboard hook init");
     }
 
-    bool bHeld = keyboard.IsKeyDown(_config.AimbotKeybind);
+    // Check if the aimbot key is held down
+    bool bHeld = keyboard.IsKeyDown(_aimbotKeybind);
 
     try
     {
-        if (this.InGame && !Memory.InHideout && _cameraManager != null && _config.EnableAimbot)
+        if (this.InGame && !Memory.InHideout && _cameraManager != null)
         {
-            // Target all alive players except teammates
+            // Filter active and alive players within max distance
             var players = this.AllPlayers?.Select(x => x.Value)
-                .Where(x => x.IsActive && x.IsAlive && !x.IsFriendlyActive) // Exclude teammates
-                .Where(x => Vector3.Distance(LocalPlayer.Position, x.Position) <= _config.AimbotMaxDistance); // Check distance
+                .Where(x => x.IsActive && x.IsAlive && Vector3.Distance(x.Position, LocalPlayer.Position) < _config.AimbotMaxDistance);
 
             if (players.Any())
             {
                 this._cameraManager.GetViewmatrixAsync();
-
-                Vector2 currentAngles = LocalPlayer.GetRotationFr();
                 Vector3 cameraPos = GetFireportPos();
 
                 if (bHeld && bHeld == bLastHeld && udPlayer != null && udPlayer.IsAlive && udPlayer.IsActive)
                 {
-                    GetClosestBoneScr(udPlayer, out Vector2 bonePosScr, out Vector3 bonePos);
-                    if (IsWithinFOV(bonePosScr))
-                    {
-                        Vector2 targetAngle = CalcAngle(cameraPos, bonePos);
-                        Vector2 smoothedAngle = SmoothAim(currentAngles, targetAngle, _config.AimbotSmoothness);
+                    // Existing target lock logic
+                    Vector3 targetPos = GetClosestBoneScr(udPlayer, out Vector2 screenPos);
+                    Vector2 rel = new Vector2(screenPos.X - (1920f / 2f), screenPos.Y - (1080f / 2f));
+                    var distToCrosshair = Math.Sqrt((rel.X * rel.X) + (rel.Y * rel.Y));
 
-                        if (!float.IsNaN(smoothedAngle.X) && !float.IsNaN(smoothedAngle.Y))
+                    if (distToCrosshair < _aimbotFOV)
+                    {
+                        Vector2 ang = CalcAngle(cameraPos, targetPos);
+                        if (!float.IsNaN(ang.X) && !float.IsNaN(ang.Y))
                         {
-                            LocalPlayer.SetRotationFr(smoothedAngle);
+                            LocalPlayer.SetRotationFr(ang);
                         }
                     }
                 }
                 else if (bHeld && (bHeld != bLastHeld || udPlayer == null || !udPlayer.IsAlive || !udPlayer.IsActive))
                 {
+                    // Start searching for the closest player to lock onto
                     Player closestPlayer = null;
                     Vector3 closestPlayerBone = Vector3.Zero;
-                    double lastDist = double.MaxValue;
+                    double closestDistance = double.MaxValue;
 
                     foreach (var player in players)
                     {
-                        GetClosestBoneScr(player, out Vector2 bonePosScr, out Vector3 bonePos);
+                        Vector3 targetPos = GetClosestBoneScr(player, out Vector2 screenPos);
+                        Vector2 rel = new Vector2(screenPos.X - (1920f / 2f), screenPos.Y - (1080f / 2f));
+                        var distToCrosshair = Math.Sqrt((rel.X * rel.X) + (rel.Y * rel.Y));
 
-                        if (IsWithinFOV(bonePosScr))
+                        // Only consider players within FOV
+                        if (distToCrosshair < _aimbotFOV && distToCrosshair > 2)
                         {
-                            var dist = _config.AimbotClosest
-                                ? Vector3.Distance(LocalPlayer.Position, player.Position) // Distance to player
-                                : Vector2.Distance(bonePosScr, new Vector2(1920f / 2f, 1080f / 2f)); // Distance to screen center
+                            double distToPlayer = Vector3.Distance(player.Position, LocalPlayer.Position);
 
-                            if (dist < lastDist)
+                            // Prioritize the closest player based on world distance
+                            if (aimbotClosest && distToPlayer < closestDistance)
                             {
                                 closestPlayer = player;
-                                closestPlayerBone = bonePos;
-                                lastDist = dist;
+                                closestPlayerBone = targetPos;
+                                closestDistance = distToPlayer;
+                            }
+                            else if (!aimbotClosest && distToCrosshair < closestDistance)
+                            {
+                                closestPlayer = player;
+                                closestPlayerBone = targetPos;
+                                closestDistance = distToCrosshair;
                             }
                         }
                     }
 
-                    if (closestPlayer != null)
+                    // Lock onto the closest valid target
+                    if (closestDistance < _aimbotFOV)
                     {
-                        Vector2 targetAngle = CalcAngle(cameraPos, closestPlayerBone);
-                        Vector2 smoothedAngle = SmoothAim(currentAngles, targetAngle, _config.AimbotSmoothness);
-
-                        if (!float.IsNaN(smoothedAngle.X) && !float.IsNaN(smoothedAngle.Y))
+                        Vector2 ang = CalcAngle(cameraPos, closestPlayerBone);
+                        if (!float.IsNaN(ang.X) && !float.IsNaN(ang.Y))
                         {
-                            LocalPlayer.SetRotationFr(smoothedAngle);
-                            udPlayer = closestPlayer;
+                            LocalPlayer.SetRotationFr(ang);
+                            udPlayer = closestPlayer;  // Set the new target
                         }
                     }
                 }
@@ -911,10 +914,48 @@ public void AimerBotter()
         Program.Log($"ERROR -> Aimer botter -> {ex.Message}\nStackTrace:{ex.StackTrace}");
     }
 
-    bLastHeld = bHeld;
+    bLastHeld = bHeld;  // Update the held state for the next frame
 }
 
-    
+
+public Vector3 GetClosestBoneScr(Player player, out Vector2 screenPos)
+{
+    Vector3 closestBonePos = new Vector3();
+    screenPos = new Vector2();
+    double closestDistance = double.MaxValue;
+
+    List<(bool, PlayerBones)> boneOptions = new List<(bool, PlayerBones)>
+    {
+        (_config.AimbotHead, PlayerBones.HumanHead),
+        (_config.AimbotNeck, PlayerBones.HumanNeck),
+        (_config.AimbotChest, PlayerBones.HumanSpine3),
+        (_config.AimbotPelvis, PlayerBones.HumanPelvis),
+        (_config.AimbotRightLeg, PlayerBones.HumanRCalf),
+        (_config.AimbotLeftLeg, PlayerBones.HumanLCalf)
+    };
+
+    foreach (var (isEnabled, bone) in boneOptions)
+    {
+        if (!isEnabled) continue;
+
+        if (GetBoneScr(player, bone, out Vector2 boneScreenPos, out Vector3 bonePos))
+        {
+            float distanceToCenter = Vector2.Distance(boneScreenPos, new Vector2(1920f / 2f, 1080f / 2f));
+
+            if (distanceToCenter < closestDistance)
+            {
+                closestDistance = distanceToCenter;
+                closestBonePos = bonePos;
+                screenPos = boneScreenPos;
+            }
+        }
+    }
+
+    return closestBonePos;
+}
+
+
+
         public void AimerBotterKmBox()
         {
             if (!KmBoxWrapper.done_init)
@@ -924,16 +965,16 @@ public void AimerBotter()
                 _keyChecker.Start();
                 Program.Log("Initialized kmbox");
             }
-    
+
             if (_cameraManager is null)
             {
                 Program.Log("Gamara is ded");
                 return;
             }
-    
+
             this._cameraManager.GetViewmatrixAsync();
-    
-    
+
+
             if (!KmBoxWrapper.done_init)
             {
                 KmBoxWrapper.Init();
@@ -941,7 +982,7 @@ public void AimerBotter()
                 _keyChecker.Start();
                 Program.Log("Initialized kmbox");
             }
-    
+
             try
             {
                 if (!this.InGame || Memory.InHideout)
@@ -949,19 +990,22 @@ public void AimerBotter()
                     MessageBox.Show("Not in game");
                     return;
                 }
-    
+
+
+
+
                 bool bHeld = _keyChecker.GetHeldState();
                 if (bHeld && bHeld == bLastHeld && udPlayer is not null && udPlayer.IsAlive && udPlayer.IsActive)
                 {
-                    GetClosestBoneScr(udPlayer, out Vector2 headPos, out _);
+                    GetHeadScr(udPlayer, out Vector2 headPos, out _);
                     Vector2 rel = new Vector2(headPos.X - (1920f / 2f), headPos.Y - (1080f / 2f));
                     var dist = Math.Sqrt(Math.Abs(rel.X) * Math.Abs(rel.Y));
-    
+
                     if (dist < 90)
                     {
                         KmBoxWrapper.Move(Convert.ToInt32(rel.X), Convert.ToInt32(rel.Y));
                     }
-    
+
                 }
                 else if (bHeld && (bHeld != bLastHeld || udPlayer is null || !udPlayer.IsAlive || !udPlayer.IsActive))
                 {
@@ -970,15 +1014,15 @@ public void AimerBotter()
                     .Where(x => x.IsActive && x.IsAlive);
                     if (players is not null)
                     {
-                    
+
                         Player clozestPlayer = null;
                         Vector2 clozestPlayerHead = Vector2.Zero;
                         double lastDist = 999999;
                         foreach (var player in players)
                         {
-                            GetClosestBoneScr(player, out Vector2 HeadPos, out _);
+                            GetHeadScr(player, out Vector2 HeadPos, out _);
                             Vector2 rel = new Vector2(HeadPos.X - (1920f / 2f), HeadPos.Y - (1080f / 2f));
-    
+
                             var dist = Math.Sqrt(Math.Abs(rel.X + 1) * Math.Abs(rel.Y + 1));
                             if (dist < lastDist && dist > 2)
                             {
