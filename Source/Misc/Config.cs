@@ -83,6 +83,13 @@ namespace eft_dma_radar
         [JsonPropertyName("freezeTimeOfDay")]
         public bool FreezeTimeOfDay { get; set; }
 
+        // waoowaowo
+        [JsonPropertyName("cameraFOV")]
+        public bool CameraFOV { get; set; }
+
+        [JsonPropertyName("cameraFOVamount")]
+        public float CameraFOVamount { get; set; }
+
         [JsonPropertyName("globalFont")]
         public int GlobalFont { get; set; }
 
@@ -97,6 +104,10 @@ namespace eft_dma_radar
 
         [JsonPropertyName("infiniteStamina")]
         public bool InfiniteStamina { get; set; }
+
+        // waoowaowo
+        [JsonPropertyName("infiniteStaminaLegacy")]
+        public bool InfiniteStaminaLegacy { get; set; }
 
         [JsonPropertyName("instantADS")]
         public bool InstantADS { get; set; }
@@ -539,6 +550,10 @@ namespace eft_dma_radar
             EnablePMC = false; // Enable aiming at PMC targets
             EnableTargetScavs = false; // Enable aiming at SCAV targets
             Hostname = "localhost";
+            // waoowaowo
+            CameraFOV = false;
+            CameraFOVamount = 75f;
+            InfiniteStaminaLegacy = false;
         }
 
         /// <summary>

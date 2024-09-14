@@ -506,6 +506,48 @@ namespace eft_dma_radar
                 this.OriginalValues["weaponLn"] = this._weaponLn;
         }
 
+        /// <summary>
+        /// Legacy method of inf stamina
+        /// </summary>
+        public void SetMovementState(bool on, ref List<IScatterWriteEntry> entries)
+        {
+            try
+            {
+                if (on && this._animationState == 5)
+                {
+                    entries.Add(new ScatterWriteDataEntry<byte>(this._baseMovementState + Offsets.BaseMovementState.Name, 6));
+                }
+                else if (!on && this._animationState == 6)
+                {
+                    entries.Add(new ScatterWriteDataEntry<byte>(this._baseMovementState + Offsets.BaseMovementState.Name, 5));
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Log($"[PlayerManager] - SetMovementState ({ex.Message})\n{ex.StackTrace}");
+            }
+        }
+        public void SetMaxStamina(ref List<IScatterWriteEntry> entries)
+        {
+            try
+            {
+                if (this.OriginalValues["StaminaCapacity"] == -1)
+                {
+                    this.OriginalValues["StaminaCapacity"] = Memory.ReadValue<float>(this._physical + 0xC0);
+                    this.OriginalValues["HandStaminaCapacity"] = Memory.ReadValue<float>(this._physical + 0xC8);
+                }
+
+                entries.Add(new ScatterWriteDataEntry<float>(this._stamina + 0x48, this.OriginalValues["StaminaCapacity"]));
+                entries.Add(new ScatterWriteDataEntry<float>(this._handsStamina + 0x48, this.OriginalValues["HandStaminaCapacity"]));
+            }
+            catch (Exception ex)
+            {
+                Program.Log($"[PlayerManager] - SetMaxStamina ({ex.Message})\n{ex.StackTrace}");
+            }
+        }
+        /// <summary>
+        /// New method of inf stamina, too good to be true tho
+        /// </summary>
         public void SetInfiniteStamina(bool on, ref List<IScatterWriteEntry> entries)
         {
             try

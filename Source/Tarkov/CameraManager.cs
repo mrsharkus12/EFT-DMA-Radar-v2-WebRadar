@@ -405,5 +405,26 @@ namespace eft_dma_radar
                 Program.Log($"CameraManager - (OpticThermalVision) {ex.Message}\n{ex.StackTrace}");
             }
         }
+
+        /// <summary>
+        /// public function to change FOV
+        /// </summary>
+        public void ChangeFOV(float fov, ref List<IScatterWriteEntry> entries)
+        {
+            ulong FOV_ptr = Memory.ReadPtrChain(_fpsCamera, Offsets.CameraShit.viewmatrix);
+            ulong FOV_new = FOV_ptr + 0x15C;
+
+            if (!this.IsReady)
+                return;
+
+            try
+            {
+                entries.Add(new ScatterWriteDataEntry<float>(FOV_new, fov));
+            }
+            catch (Exception ex)
+            {
+                Program.Log($"CameraManager - FOVChanger ({ex.Message})\n{ex.StackTrace}");
+            }
+        }
     }
 }

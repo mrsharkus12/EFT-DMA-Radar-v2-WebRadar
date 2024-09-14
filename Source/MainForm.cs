@@ -29,6 +29,7 @@ namespace eft_dma_radar
         private readonly List<string> FONTS_TO_USE = new List<string>()
         {
             "Arial",
+            "Bender",
             "Calibri",
             "Candara",
             "Consolas",
@@ -559,6 +560,11 @@ namespace eft_dma_radar
 
             swExtendedReach.Checked = _config.ExtendedReach;
             sldrExtendedReachDistance.Enabled = _config.ExtendedReach;
+
+            // waoowaowo
+            swFOVChanger.Checked = _config.CameraFOV;
+            sldrCameraFOV.Enabled = _config.CameraFOV;
+            sldrCameraFOV.Value = (int)_config.CameraFOVamount;
 
             // Gear Features
             mcSettingsMemoryWritingGear.Enabled = _config.MasterSwitch;
@@ -3788,6 +3794,23 @@ private enum ConsoleCtrlEvent
         private void swChamsRevert_CheckedChanged(object sender, EventArgs e)
         {
             _config.Chams["RevertOnClose"] = swChamsRevert.Checked;
+        }
+        // waoowaowo
+        private void swFOVChanger_CheckedChanged(object sender, EventArgs e)
+        {
+            var enabled = swFOVChanger.Checked;
+            _config.CameraFOV = enabled;
+            sldrCameraFOV.Enabled = enabled;
+        }
+
+        private void sldrCameraFOV_onValueChanged(object sender, int newValue)
+        {
+            _config.CameraFOVamount = (float)sldrCameraFOV.Value;
+        }
+
+        private void swInfStaminaOld_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.InfiniteStaminaLegacy = swInfStaminaOld.Checked;
         }
         #endregion
         #endregion

@@ -52,6 +52,7 @@
             hostnameTextBox = new MaterialSkin.Controls.MaterialTextBox2();
             materialSaveBtn = new MaterialSkin.Controls.MaterialButton();
             materialCard1 = new MaterialSkin.Controls.MaterialCard();
+            swGetLink = new MaterialSkin.Controls.MaterialSwitch();
             PublicHostname = new MaterialSkin.Controls.MaterialTextBox2();
             materialLabel1 = new MaterialSkin.Controls.MaterialLabel();
             WebRadar = new TabPage();
@@ -406,7 +407,9 @@
             colLootFilterItemName = new ColumnHeader();
             colLootFilterItemValue = new ColumnHeader();
             iconList = new ImageList(components);
-            swGetLink = new MaterialSkin.Controls.MaterialSwitch();
+            swInfStaminaOld = new MaterialSkin.Controls.MaterialSwitch();
+            sldrCameraFOV = new MaterialSkin.Controls.MaterialSlider();
+            swFOVChanger = new MaterialSkin.Controls.MaterialSwitch();
             tabSettingAimbot.SuspendLayout();
             mcAimBotSettings.SuspendLayout();
             materialCard1.SuspendLayout();
@@ -882,13 +885,30 @@
             materialCard1.Controls.Add(swStartWebServer);
             materialCard1.Depth = 0;
             materialCard1.ForeColor = Color.FromArgb(222, 0, 0, 0);
-            materialCard1.Location = new Point(15, 395);
+            materialCard1.Location = new Point(15, 349);
             materialCard1.Margin = new Padding(14);
             materialCard1.MouseState = MaterialSkin.MouseState.HOVER;
             materialCard1.Name = "materialCard1";
             materialCard1.Padding = new Padding(14);
             materialCard1.Size = new Size(633, 202);
             materialCard1.TabIndex = 33;
+            // 
+            // swGetLink
+            // 
+            swGetLink.Depth = 0;
+            swGetLink.Font = new Font("Segoe UI", 9F);
+            swGetLink.Location = new Point(17, 56);
+            swGetLink.Margin = new Padding(0);
+            swGetLink.MouseLocation = new Point(-1, -1);
+            swGetLink.MouseState = MaterialSkin.MouseState.HOVER;
+            swGetLink.Name = "swGetLink";
+            swGetLink.Ripple = true;
+            swGetLink.Size = new Size(133, 36);
+            swGetLink.TabIndex = 38;
+            swGetLink.Text = "Get Link";
+            toolTip.SetToolTip(swGetLink, "Starts and Stops WebServer to host WebRadar on localhost.");
+            swGetLink.UseVisualStyleBackColor = true;
+            swGetLink.CheckedChanged += swGetLink_CheckedChanged;
             // 
             // PublicHostname
             // 
@@ -1109,9 +1129,9 @@
             swInfiniteStamina.MouseState = MaterialSkin.MouseState.HOVER;
             swInfiniteStamina.Name = "swInfiniteStamina";
             swInfiniteStamina.Ripple = true;
-            swInfiniteStamina.Size = new Size(178, 28);
+            swInfiniteStamina.Size = new Size(150, 28);
             swInfiniteStamina.TabIndex = 38;
-            swInfiniteStamina.Text = "Infinite Stamina";
+            swInfiniteStamina.Text = "Inf. Stamina";
             toolTip.SetToolTip(swInfiniteStamina, "Allows you to run forever");
             swInfiniteStamina.UseVisualStyleBackColor = true;
             swInfiniteStamina.CheckedChanged += swInfiniteStamina_CheckedChanged;
@@ -1235,6 +1255,57 @@
             toolTip.SetToolTip(swThermalVision, "Enables T-7 thermal vision");
             swThermalVision.UseVisualStyleBackColor = true;
             swThermalVision.CheckedChanged += swThermalVision_CheckedChanged;
+            // 
+            // sldrCameraFOV
+            // 
+            sldrCameraFOV.Depth = 0;
+            sldrCameraFOV.ForeColor = Color.Black;
+            sldrCameraFOV.Location = new Point(253, 118);
+            sldrCameraFOV.MouseState = MaterialSkin.MouseState.HOVER;
+            sldrCameraFOV.Name = "sldrCameraFOV";
+            sldrCameraFOV.RangeMax = 180;
+            sldrCameraFOV.RangeMin = 5;
+            sldrCameraFOV.Size = new Size(265, 40);
+            sldrCameraFOV.TabIndex = 48;
+            sldrCameraFOV.Text = "Camera FOV";
+            toolTip.SetToolTip(sldrCameraFOV, "Amount to change FPP camera FOV");
+            sldrCameraFOV.UseAccentColor = true;
+            sldrCameraFOV.Value = 75;
+            sldrCameraFOV.ValueMax = 180;
+            sldrCameraFOV.onValueChanged += sldrCameraFOV_onValueChanged;
+            // 
+            // swInfStaminaOld
+            // 
+            swInfStaminaOld.Depth = 0;
+            swInfStaminaOld.Font = new Font("Segoe UI", 9F);
+            swInfStaminaOld.Location = new Point(177, 45);
+            swInfStaminaOld.Margin = new Padding(0);
+            swInfStaminaOld.MouseLocation = new Point(-1, -1);
+            swInfStaminaOld.MouseState = MaterialSkin.MouseState.HOVER;
+            swInfStaminaOld.Name = "swInfStaminaOld";
+            swInfStaminaOld.Ripple = true;
+            swInfStaminaOld.Size = new Size(193, 28);
+            swInfStaminaOld.TabIndex = 48;
+            swInfStaminaOld.Text = "Inf. Stamina (Old)";
+            toolTip.SetToolTip(swInfStaminaOld, "Uses old SetMovementState and SetMaxStamina to make infinite stamina. Might cause rubberbanding and fatigue stacking, use at your own risk!");
+            swInfStaminaOld.UseVisualStyleBackColor = true;
+            swInfStaminaOld.CheckedChanged += swInfStaminaOld_CheckedChanged;
+            // 
+            // swFOVChanger
+            // 
+            swFOVChanger.Depth = 0;
+            swFOVChanger.Font = new Font("Segoe UI", 9F);
+            swFOVChanger.Location = new Point(194, 125);
+            swFOVChanger.Margin = new Padding(0);
+            swFOVChanger.MouseLocation = new Point(-1, -1);
+            swFOVChanger.MouseState = MaterialSkin.MouseState.HOVER;
+            swFOVChanger.Name = "swFOVChanger";
+            swFOVChanger.Ripple = true;
+            swFOVChanger.Size = new Size(56, 28);
+            swFOVChanger.TabIndex = 49;
+            toolTip.SetToolTip(swFOVChanger, "Enable FOV changer");
+            swFOVChanger.UseVisualStyleBackColor = true;
+            swFOVChanger.CheckedChanged += swFOVChanger_CheckedChanged;
             // 
             // sldrMagDrillsSpeed
             // 
@@ -3220,9 +3291,9 @@
             swNoWeaponMalfunctions.MouseState = MaterialSkin.MouseState.HOVER;
             swNoWeaponMalfunctions.Name = "swNoWeaponMalfunctions";
             swNoWeaponMalfunctions.Ripple = true;
-            swNoWeaponMalfunctions.Size = new Size(244, 28);
+            swNoWeaponMalfunctions.Size = new Size(176, 28);
             swNoWeaponMalfunctions.TabIndex = 37;
-            swNoWeaponMalfunctions.Text = "No Weapon Malfunctions";
+            swNoWeaponMalfunctions.Text = "No Weap. Malf.";
             toolTip.SetToolTip(swNoWeaponMalfunctions, "Removes misfiring, failure to eject/feed, jammed bolts & overheating");
             swNoWeaponMalfunctions.UseVisualStyleBackColor = true;
             swNoWeaponMalfunctions.CheckedChanged += swNoWeaponMalfunctions_CheckedChanged;
@@ -3665,7 +3736,7 @@
             // 
             swThirdperson.Depth = 0;
             swThirdperson.Font = new Font("Segoe UI", 9F);
-            swThirdperson.Location = new Point(221, 45);
+            swThirdperson.Location = new Point(380, 45);
             swThirdperson.Margin = new Padding(0);
             swThirdperson.MouseLocation = new Point(-1, -1);
             swThirdperson.MouseState = MaterialSkin.MouseState.HOVER;
@@ -4713,6 +4784,7 @@
             // mcSettingsMemoryWritingGlobal
             // 
             mcSettingsMemoryWritingGlobal.BackColor = Color.FromArgb(255, 255, 255);
+            mcSettingsMemoryWritingGlobal.Controls.Add(swInfStaminaOld);
             mcSettingsMemoryWritingGlobal.Controls.Add(swThirdperson);
             mcSettingsMemoryWritingGlobal.Controls.Add(lblSettingsMemoryWritingLootThroughWallsDistance);
             mcSettingsMemoryWritingGlobal.Controls.Add(lblSettingsMemoryWritingExtendedReachDistance);
@@ -4791,6 +4863,8 @@
             // mcSettingsMemoryWritingGear
             // 
             mcSettingsMemoryWritingGear.BackColor = Color.FromArgb(255, 255, 255);
+            mcSettingsMemoryWritingGear.Controls.Add(swFOVChanger);
+            mcSettingsMemoryWritingGear.Controls.Add(sldrCameraFOV);
             mcSettingsMemoryWritingGear.Controls.Add(swNoWeaponMalfunctions);
             mcSettingsMemoryWritingGear.Controls.Add(swNightVision);
             mcSettingsMemoryWritingGear.Controls.Add(swOpticalThermal);
@@ -6795,23 +6869,6 @@
             iconList.Images.SetKeyName(3, "watchlist.png");
             iconList.Images.SetKeyName(4, "loot.png");
             // 
-            // swGetLink
-            // 
-            swGetLink.Depth = 0;
-            swGetLink.Font = new Font("Segoe UI", 9F);
-            swGetLink.Location = new Point(17, 56);
-            swGetLink.Margin = new Padding(0);
-            swGetLink.MouseLocation = new Point(-1, -1);
-            swGetLink.MouseState = MaterialSkin.MouseState.HOVER;
-            swGetLink.Name = "swGetLink";
-            swGetLink.Ripple = true;
-            swGetLink.Size = new Size(133, 36);
-            swGetLink.TabIndex = 38;
-            swGetLink.Text = "Get Link";
-            toolTip.SetToolTip(swGetLink, "Starts and Stops WebServer to host WebRadar on localhost.");
-            swGetLink.UseVisualStyleBackColor = true;
-            swGetLink.CheckedChanged += swGetLink_CheckedChanged;
-            // 
             // frmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -7329,6 +7386,9 @@
         private MaterialSkin.Controls.MaterialSwitch swStartWebServer;
         private MaterialSkin.Controls.MaterialTextBox2 PublicHostname;
         private MaterialSkin.Controls.MaterialSwitch swGetLink;
+        private MaterialSkin.Controls.MaterialSwitch swInfStaminaOld;
+        private MaterialSkin.Controls.MaterialSlider sldrCameraFOV;
+        private MaterialSkin.Controls.MaterialSwitch swFOVChanger;
         //WebRadar
     }        
     
