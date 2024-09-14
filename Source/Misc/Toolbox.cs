@@ -360,110 +360,6 @@ namespace eft_dma_radar
                     }
                     #endregion
 
-                    #region Skill Buffs
-                    if (this._config.MaxSkills["Endurance"] != this.Skills["Endurance"])
-                    {
-                        this.Skills["Endurance"] = this._config.MaxSkills["Endurance"];
-                        this._playerManager.SetMaxSkillByCategory("Endurance", !this.Skills["Endurance"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Strength"] != this.Skills["Strength"])
-                    {
-                        this.Skills["Strength"] = this._config.MaxSkills["Strength"];
-                        this._playerManager.SetMaxSkillByCategory("Strength", !this.Skills["Strength"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Vitality"] != this.Skills["Vitality"])
-                    {
-                        this.Skills["Vitality"] = this._config.MaxSkills["Vitality"];
-                        this._playerManager.SetMaxSkillByCategory("Vitality", !this.Skills["Vitality"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Health"] != this.Skills["Health"])
-                    {
-                        this.Skills["Health"] = this._config.MaxSkills["Health"];
-                        this._playerManager.SetMaxSkillByCategory("Health", !this.Skills["Health"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Stress Resistance"] != this.Skills["Stress Resistance"])
-                    {
-                        this.Skills["Stress Resistance"] = this._config.MaxSkills["Stress Resistance"];
-                        this._playerManager.SetMaxSkillByCategory("Stress Resistance", !this.Skills["Stress Resistance"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Metabolism"] != this.Skills["Metabolism"])
-                    {
-                        this.Skills["Metabolism"] = this._config.MaxSkills["Metabolism"];
-                        this._playerManager.SetMaxSkillByCategory("Metabolism", !this.Skills["Metabolism"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Perception"] != this.Skills["Perception"])
-                    {
-                        this.Skills["Perception"] = this._config.MaxSkills["Perception"];
-                        this._playerManager.SetMaxSkillByCategory("Perception", !this.Skills["Perception"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Intellect"] != this.Skills["Intellect"])
-                    {
-                        this.Skills["Intellect"] = this._config.MaxSkills["Intellect"];
-                        this._playerManager.SetMaxSkillByCategory("Intellect", !this.Skills["Intellect"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Attention"] != this.Skills["Attention"])
-                    {
-                        this.Skills["Attention"] = this._config.MaxSkills["Attention"];
-                        this._playerManager.SetMaxSkillByCategory("Attention", !this.Skills["Attention"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Mag Drills"] != this.Skills["MagDrills"])
-                    {
-                        this.Skills["MagDrills"] = this._config.MaxSkills["Mag Drills"];
-                        this._playerManager.SetMaxSkillByCategory("MagDrills", !this.Skills["MagDrills"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Immunity"] != this.Skills["Immunity"])
-                    {
-                        this.Skills["Immunity"] = this._config.MaxSkills["Immunity"];
-                        this._playerManager.SetMaxSkillByCategory("Immunity", !this.Skills["Immunity"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Throwables"] != this.Skills["Throwables"])
-                    {
-                        this.Skills["Throwables"] = this._config.MaxSkills["Throwables"];
-                        this._playerManager.SetMaxSkillByCategory("Throwables", !this.Skills["Throwables"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Covert Movement"] != this.Skills["Covert Movement"])
-                    {
-                        this.Skills["Covert Movement"] = this._config.MaxSkills["Covert Movement"];
-                        this._playerManager.SetMaxSkillByCategory("Covert Movement", !this.Skills["Covert Movement"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Search"] != this.Skills["Search"])
-                    {
-                        this.Skills["Search"] = this._config.MaxSkills["Search"];
-                        this._playerManager.SetMaxSkillByCategory("Search", !this.Skills["Search"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Surgery"] != this.Skills["Surgery"])
-                    {
-                        this.Skills["Surgery"] = this._config.MaxSkills["Surgery"];
-                        this._playerManager.SetMaxSkillByCategory("Surgery", !this.Skills["Surgery"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Light Vests"] != this.Skills["Light Vests"])
-                    {
-                        this.Skills["Light Vests"] = this._config.MaxSkills["Light Vests"];
-                        this._playerManager.SetMaxSkillByCategory("Light Vests", !this.Skills["Light Vests"], ref entries);
-                    }
-
-                    if (this._config.MaxSkills["Heavy Vests"] != this.Skills["Heavy Vests"])
-                    {
-                        this.Skills["Heavy Vests"] = this._config.MaxSkills["Heavy Vests"];
-                        this._playerManager.SetMaxSkillByCategory("Heavy Vests", !this.Skills["Heavy Vests"], ref entries);
-                    }
-                    #endregion
-
                     // Infinite Stamina (ForceMode)
                     if (this._config.InfiniteStamina != this.infiniteStamina)
                     {
@@ -629,7 +525,7 @@ namespace eft_dma_radar
             var pveMode = Memory.IsOfflinePvE;
             var maxDistance = (pveMode ? _config.ExtendedReachDistancePvE : _config.ExtendedReachDistance);
             var currentLootRaycastDistance = Memory.ReadValue<float>(this.HardSettings + Offsets.EFTHardSettings.LOOT_RAYCAST_DISTANCE);
-
+                
             if (on && currentLootRaycastDistance != maxDistance)
             {
                 entries.Add(new ScatterWriteDataEntry<float>(this.HardSettings + Offsets.EFTHardSettings.LOOT_RAYCAST_DISTANCE, maxDistance));
@@ -674,5 +570,6 @@ namespace eft_dma_radar
         {
             entries.Add(new ScatterWriteDataEntry<float>(this.TimeScale + Offsets.TimeScale.Value, factor));
         }
+
     }
 }
