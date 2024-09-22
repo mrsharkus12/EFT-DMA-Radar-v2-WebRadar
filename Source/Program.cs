@@ -101,11 +101,11 @@ public static IHostBuilder CreateHostBuilder(string[] args) =>
             webBuilder.UseKestrel(serverOptions =>
             {
                 // Bind to all IP addresses on port 80
-                serverOptions.ListenAnyIP(80);
+                serverOptions.ListenAnyIP(8080);
 
                 // Additionally bind to specific hostnames
-                serverOptions.Listen(System.Net.IPAddress.Loopback, 80); // localhost
-                serverOptions.Listen(System.Net.IPAddress.IPv6Loopback, 80); // localhost IPv6
+                serverOptions.Listen(System.Net.IPAddress.Loopback, 8080); // localhost
+                serverOptions.Listen(System.Net.IPAddress.IPv6Loopback, 8080); // localhost IPv6
             });
 
             webBuilder.ConfigureServices(services =>

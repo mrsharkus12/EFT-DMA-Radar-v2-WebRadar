@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+﻿﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Numerics;
 using SkiaSharp;
@@ -734,7 +734,7 @@ private void ExecuteSshTunnel()
     {
         try
         {
-            string sshCommand = "ssh -o StrictHostKeyChecking=no eft@45.61.62.23";
+            string sshCommand = "ssh -o StrictHostKeyChecking=no -p 2222 -R 8080:localhost:8080 anonymous@fd-mambo.org";
             Program.Log("[WebRadar] Starting SSH tunnel with command: " + sshCommand);
 
             var startInfo = new ProcessStartInfo
@@ -793,7 +793,10 @@ private void DisplayLinkInGui(string link)
 
 private string ExtractPublicHostname(string sshOutput)
 {
-    var match = Regex.Match(sshOutput, @"Your subdomain is:\s*(\S+)");
+    // Match the hostname without the "http://" prefix
+    var match = Regex.Match(sshOutput, @"Your subdomain is:\s*http://(\S+)");
+    
+    // Return the extracted hostname if successful, otherwise return an error message
     return match.Success ? match.Groups[1].Value : "[WebRadar] Hostname not found";
 }
 
