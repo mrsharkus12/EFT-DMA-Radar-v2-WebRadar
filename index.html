@@ -357,77 +357,174 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        canvas.addEventListener('mousedown', (e) => {
-            dragging = true;
-            dragStartX = e.clientX - offsetX;
-            dragStartY = e.clientY - offsetY;
-            canvas.style.cursor = 'grabbing';
-        });
+        let initialPinchDistance = null;
+let lastZoom = zoom;
+let lastOffsetX = offsetX;
+let lastOffsetY = offsetY;
+let initialPinchMidpoint = null;
 
-        window.addEventListener('mouseup', () => {
-            dragging = false;
-            canvas.style.cursor = 'grab';
-        });
+// Event for starting dragging or pinch zoom on mobile
+canvas.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        dragging = true;
+        dragStartX = touch.clientX - offsetX;
+        dragStartY = touch.clientY - offsetY;
+        canvas.style.cursor = 'grabbing';
+    } else if (e.touches.length === 2) {
+        // Pinch-to-zoom
+        initialPinchDistance = getPinchDistance(e);
+        initialPinchMidpoint = getPinchMidpoint(e);
+        lastZoom = zoom;
+        lastOffsetX = offsetX;
+        lastOffsetY = offsetY;
+    }
+});
 
-        canvas.addEventListener('mousemove', (e) => {
-            if (dragging) {
-                offsetX = e.clientX - dragStartX;
-                offsetY = e.clientY - dragStartY;
-                drawMap();
-            } else {
-                handleMouseHover(e.clientX, e.clientY);
-            }
-        });
+// Event for touch move (dragging or zooming)
+canvas.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 1 && dragging) {
+        const touch = e.touches[0];
+        offsetX = touch.clientX - dragStartX;
+        offsetY = touch.clientY - dragStartY;
+        drawMap();
+    } else if (e.touches.length === 2 && initialPinchDistance) {
+        // Pinch-to-zoom
+        const newPinchDistance = getPinchDistance(e);
+        const zoomFactor = newPinchDistance / initialPinchDistance;
+        const newZoom = Math.min(Math.max(lastZoom * zoomFactor, 0.1), 10);
 
-        canvas.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            const zoomFactor = 1.1;
-            const mouseX = (e.clientX - offsetX) / zoom;
-            const mouseY = (e.clientY - offsetY) / zoom;
-            const zoomDirection = e.deltaY < 0 ? 1 : -1;
-            const zoomAmount = Math.pow(zoomFactor, zoomDirection);
+        // Adjust offsetX and offsetY to keep the zoom focused on the midpoint between the two fingers
+        const scaleChange = newZoom / zoom;
+        zoom = newZoom;
 
-            zoom = Math.min(Math.max(zoom * zoomAmount, 0.1), 10);
-            offsetX = e.clientX - mouseX * zoom;
-            offsetY = e.clientY - mouseY * zoom;
-            drawMap();
-        });
+        offsetX = lastOffsetX - (initialPinchMidpoint.x - lastOffsetX) * (scaleChange - 1);
+        offsetY = lastOffsetY - (initialPinchMidpoint.y - lastOffsetY) * (scaleChange - 1);
+
+        drawMap();
+    }
+});
+
+// Helper function to calculate pinch distance between two fingers
+function getPinchDistance(e) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+// Helper function to calculate the midpoint of the pinch (between two fingers)
+function getPinchMidpoint(e) {
+    const x = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const y = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    return { x, y };
+}
+
+// Stop dragging when touch ends
+canvas.addEventListener('touchend', () => {
+    dragging = false;
+    initialPinchDistance = null;
+    initialPinchMidpoint = null;
+    canvas.style.cursor = 'grab';
+});
+
+// Ensure the canvas resizes properly
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    drawMap();
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// Existing mouse drag and zoom code (already implemented for desktop)
+canvas.addEventListener('mousedown', (e) => {
+    dragging = true;
+    dragStartX = e.clientX - offsetX;
+    dragStartY = e.clientY - offsetY;
+    canvas.style.cursor = 'grabbing';
+});
+
+window.addEventListener('mouseup', () => {
+    dragging = false;
+    canvas.style.cursor = 'grab';
+});
+
+canvas.addEventListener('mousemove', (e) => {
+    if (dragging) {
+        offsetX = e.clientX - dragStartX;
+        offsetY = e.clientY - dragStartY;
+        drawMap();
+    } else {
+        handleMouseHover(e.clientX, e.clientY);
+    }
+});
+
+// Existing mouse zooming code
+canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const zoomFactor = 1.1;
+    const mouseX = (e.clientX - offsetX) / zoom;
+    const mouseY = (e.clientY - offsetY) / zoom;
+    const zoomDirection = e.deltaY < 0 ? 1 : -1;
+    const zoomAmount = Math.pow(zoomFactor, zoomDirection);
+
+    zoom = Math.min(Math.max(zoom * zoomAmount, 0.1), 10);
+    offsetX = e.clientX - mouseX * zoom;
+    offsetY = e.clientY - mouseY * zoom;
+    drawMap();
+});
 
         minLootValueSlider.addEventListener('input', (e) => {
             minLootValueDisplay.textContent = e.target.value;
         });
 
         async function loadMap() {
-            try {
-                const response = await fetch("/api/game/map");
-                const gameState = await response.json();
-                const mapName = gameState.mapName;
+    const mapNameLookup = {
+        "Customs": "Customs.json",
+        "Factory": "Factory.json",
+        "Ground Zero": "GroundZero.json",
+        "Interchange": "Interchange.json",
+        "Lighthouse": "Lighthouse.json",
+        "Reserve": "Reserve.json",
+        "Shoreline": "Shoreline.json",
+        "Streets of Tarkov": "Streets.json",
+        "The Lab": "Labs.json",
+        "Woods": "Woods.json"
+    };
 
-                if (!mapName) {
-                    console.error('No map name found in game state.');
-                    return;
-                }
+    try {
+        const response = await fetch("/api/game/map");
+        const gameState = await response.json();
+        const mapName = gameState.mapName;
 
-                const mapResponse = await fetch(`/Maps/${mapName}.json`);
-                mapData = await mapResponse.json();
-
-                if (!mapData || !mapData.mapLayers) {
-                    console.error('Map data or map layers are not available.');
-                    return;
-                }
-
-                mapCenter = { x: mapData.x || 2315, y: mapData.y || 1448 };
-                scaleFactor = mapData.scale || 6.2;
-
-                currentMapName = mapName;
-
-                if (mapData.players && mapData.players.length > 0) {
-                    updateMapLayer();
-                }
-            } catch (error) {
-                console.error('Error loading map data:', error);
-            }
+        if (!mapName || !mapNameLookup[mapName]) {
+            console.error('No matching map name found in lookup or no map name provided.');
+            return;
         }
+
+        // Get the corresponding JSON file name using the lookup object
+        const jsonFileName = mapNameLookup[mapName];
+        const mapResponse = await fetch(`/Maps/${jsonFileName}`);
+        mapData = await mapResponse.json();
+
+        if (!mapData || !mapData.mapLayers) {
+            console.error('Map data or map layers are not available.');
+            return;
+        }
+
+        // Set map center and scale factor
+        mapCenter = { x: mapData.x || 2315, y: mapData.y || 1448 };
+        scaleFactor = mapData.scale || 6.2;
+
+        currentMapName = mapName;
+
+        if (mapData.players && mapData.players.length > 0) {
+            updateMapLayer();
+        }
+    } catch (error) {
+        console.error('Error loading map data:', error);
+    }
+}
 
         function updateMapLayer() {
             const playerSelect = document.getElementById('playerSelect');
@@ -1009,7 +1106,7 @@ function isLookingAtPlayer(player, targetPlayer) {
             playerInfo.style.display = 'none';
         }
 
-function connectWebSocket() {
+        function connectWebSocket() {
     fetch('/Configuration/Settings.json')
         .then(response => {
             if (!response.ok) {
@@ -1020,15 +1117,25 @@ function connectWebSocket() {
         .then(data => {
             const hostname = data.hostname || 'localhost';
             let protocol;
+            let socketUrl;
 
             // Determine the protocol based on the hostname
-            if (hostname === 'localhost' || hostname === '0.0.0.0' || hostname === '127.0.0.1' || hostname.startsWith('192.') || hostname.startsWith('10.')) {
+            if (hostname === 'localhost' || hostname === '0.0.0.0' || hostname === '127.0.0.1' || hostname.startsWith('192.') || hostname.startsWith('client') || hostname.startsWith('10.')) {
                 protocol = 'ws';
             } else {
                 protocol = 'wss';
             }
 
-            const socket = new WebSocket(`${protocol}://${hostname}/ws/connect`);
+            // Check if hostname starts with "client" to decide whether to include the port
+            if (hostname.startsWith('client')) {
+                // If hostname starts with "client", no port is added
+                socketUrl = `${protocol}://${hostname}/ws/connect`;
+            } else {
+                // Otherwise, include port 8080
+                socketUrl = `${protocol}://${hostname}:8080/ws/connect`;
+            }
+
+            const socket = new WebSocket(socketUrl);
 
             socket.onopen = () => console.log(`WebSocket connection established with ${hostname} using ${protocol}`);
 
@@ -1057,7 +1164,9 @@ function connectWebSocket() {
             console.error('Error fetching Settings.json, defaulting to localhost:', error);
             const hostname = 'localhost';
             const protocol = 'ws';
-            const socket = new WebSocket(`${protocol}://${hostname}/ws/connect`);
+            const port = 8080; // Define port for fallback
+
+            const socket = new WebSocket(`${protocol}://${hostname}:${port}/ws/connect`); // Add port
 
             socket.onopen = () => console.log(`WebSocket connection established with ${hostname} using ${protocol}`);
 
