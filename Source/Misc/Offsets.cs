@@ -80,8 +80,8 @@
         public static readonly uint[] To_TransformInternal = new uint[] { PlayerBody, 0x28, 0x28, 0x10, 0x20 + (0 * 0x8), 0x10 }; // to TransformInternal
         public const uint MovementContext = 0x50; // to MovementContext
         public const uint Corpse = 0x408; // EFT.Interactive.Corpse
-        public const uint Profile = 0x630; // [620] <Profile>k__BackingField : EFT.Profile
-        public const uint InventoryController = 0x688; // [678] _inventoryController : -.Player.PlayerInventoryController
+        public const uint Profile = 0x640; // [620] <Profile>k__BackingField : EFT.Profile
+        public const uint InventoryController = 0x698; // [678] _inventoryController : -.Player.PlayerInventoryController
         public const uint PlayerBody = 0xB8; // [B8] _playerBody : EFT.PlayerBody
         public const uint Location = 0x5F8; // [5E8] <Location>k__BackingField : String
         public const uint Physical = 0x640; // [630] Physical : -.GClass
@@ -346,13 +346,14 @@
 
     public struct LocalGameWorld // [Class] -.ClientLocalGameWorld : ClientGameWorld
     {
-        public const uint MapName = 0x50; // [50] string_0x50 : String
-        public const uint MainPlayer = 0x140; // [140] MainPlayer : EFT.Player
+        public const uint MapName = 0x60; // [50] string_0x50 : String
+        public const uint MainPlayer = 0x150; // [140] MainPlayer : EFT.Player
         public const uint ExfilController = 0x20; // [20] gClass11CD_0x20 : -.GClass11CD
-        public const uint LootList = 0xC0; // [C0] LootList : System.Collections.Generic.List<GInterface1C43>
-        public const uint RegisteredPlayers = 0xE8; // [E8] RegisteredPlayers : System.Collections.Generic.List<IPlayer>
-        public const uint Grenades = 0x198; // [198] Grenades : -.GClass0822<Int32, Throwable>
-        public const uint RaidStarted = 0x210; // [210] boolean_0x210 : Boolean
+        public const uint MarathonExfilController = 0x18; 
+        public const uint LootList = 0xD0; // [C0] LootList : System.Collections.Generic.List<GInterface1C43>
+        public const uint RegisteredPlayers = 0xF8; // [E8] RegisteredPlayers : System.Collections.Generic.List<IPlayer>
+        public const uint Grenades = 0x1A8; // [198] Grenades : -.GClass0822<Int32, Throwable>
+        public const uint RaidStarted = 0x228; // [210] boolean_0x210 : Boolean
     }
 
     public struct EFTHardSettings
