@@ -5,7 +5,7 @@ namespace eft_dma_radar
 {
     public class Config
     {
-        // New properties for WEb+Aimbot
+        #region Json Properties
         [JsonPropertyName("aimbotFOV")]
         public int AimbotFOV { get; set; }
 
@@ -51,8 +51,6 @@ namespace eft_dma_radar
         [JsonPropertyName("hostname")]
         public string Hostname { get; set; }   
 
-       // New properties for Aimbot END        
-        #region Json Properties
         [JsonPropertyName("aimview")]
         public bool Aimview { get; set; }
 
@@ -108,6 +106,9 @@ namespace eft_dma_radar
         // waoowaowo
         [JsonPropertyName("infiniteStaminaLegacy")]
         public bool InfiniteStaminaLegacy { get; set; }
+
+        [JsonPropertyName("inventoryBlur")]
+        public bool InventoryBlur { get; set; }
 
         [JsonPropertyName("instantADS")]
         public bool InstantADS { get; set; }
@@ -554,6 +555,7 @@ namespace eft_dma_radar
             CameraFOV = false;
             CameraFOVamount = 75f;
             InfiniteStaminaLegacy = false;
+            InventoryBlur = false;
         }
 
         /// <summary>

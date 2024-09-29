@@ -10,10 +10,12 @@ namespace eft_dma_radar
         private ulong nvgComponent;
         private ulong thermalComponent;
         private ulong opticThermalComponent;
+        private ulong invComponent;
 
         private bool nvgComponentFound = false;
         private bool visorComponentFound = false;
         private bool fpsThermalComponentFound = false;
+        private bool invComponentFound = false;
         private bool opticThermalComponentFound = false;
 
         private ulong _unityBase;
@@ -148,7 +150,13 @@ namespace eft_dma_radar
                         this.fpsThermalComponentFound = this.thermalComponent != 0;
                     }
 
-                    foundFPSCamera = this.nvgComponentFound && this.visorComponentFound && this.fpsThermalComponentFound;
+                    if (!this.invComponentFound)
+                    {
+                        this.invComponent = this.GetComponentFromGameObject(this._fpsCamera, "InventoryBlur");
+                        this.invComponentFound = this.invComponent != 0;
+                    }
+
+                    foundFPSCamera = this.nvgComponentFound && this.visorComponentFound && this.fpsThermalComponentFound && this.invComponentFound;
                 }
 
                 if (foundFPSCamera && foundOpticCamera)
@@ -426,5 +434,23 @@ namespace eft_dma_radar
                 Program.Log($"CameraManager - FOVChanger ({ex.Message})\n{ex.StackTrace}");
             }
         }
+        /// <summary>
+        /// Public function to toggle InventoryBlur
+        /// </summary>
+        public void ToggleInventoryBlur(bool state, ref List<IScatterWriteEntry> entries)
+        {
+            if (!this.IsReady)
+                return;
+
+            try
+            {
+                entries.Add(new ScatterWriteDataEntry<bool>(this.invComponent + Offsets.InventoryBlur.BlurEnabled, state));
+            }
+            catch (Exception ex)
+            {
+                Program.Log($"CameraManager - (ToggleInventoryBlur) {ex.Message}\n{ex.StackTrace}");
+            }
+        }
     }
+
 }

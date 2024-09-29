@@ -481,6 +481,10 @@ namespace eft_dma_radar
                                 this._cameraManager.ChangeFOV(factor, ref entries);
                         }
 
+                        // Inventory Blur
+                        if (this._config.InventoryBlur)
+                            this._cameraManager.ToggleInventoryBlur(false, ref entries);
+
                         // Chams
                         if (this._config.Chams["Enabled"])
                         {

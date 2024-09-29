@@ -3815,6 +3815,10 @@ private enum ConsoleCtrlEvent
         {
             _config.InfiniteStaminaLegacy = swInfStaminaOld.Checked;
         }
+        private void swInventoryBlur_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.InventoryBlur = swInventoryBlur.Checked;
+        }
         #endregion
         #endregion
 
