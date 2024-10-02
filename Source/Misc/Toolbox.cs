@@ -265,12 +265,6 @@ namespace eft_dma_radar
                     if (this._config.Juggernaut)
                         this._playerManager.SetJuggernaut(ref entries);
 
-                    // Item Usage Progress Bar
-                    if (this._config.MedInfoPanel != this.medInfoPanel)
-                    {
-                        this.medInfoPanel = this._config.MedInfoPanel;
-                        this.SetUsingProgressBar(this.medInfoPanel, ref entries);
-                    }
                     #region Skill Buffs
                     if (this._config.MaxSkills["Endurance"] != this.Skills["Endurance"])
                     {
@@ -410,6 +404,13 @@ namespace eft_dma_radar
 
                             this.SetInteractDistance(this.extendedReach, ref entries);
                         }
+                    }
+
+                    // Item Usage Progress Bar
+                    if (this._config.MedInfoPanel != this.medInfoPanel)
+                    {
+                        this.medInfoPanel = this._config.MedInfoPanel;
+                        this.SetUsingProgressBar(this.medInfoPanel, ref entries);
                     }
 
                     // Lock time of day + set time of day
