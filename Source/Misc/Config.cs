@@ -86,7 +86,7 @@ namespace eft_dma_radar
         public bool CameraFOV { get; set; }
 
         [JsonPropertyName("cameraFOVamount")]
-        public float CameraFOVamount { get; set; }
+        public int CameraFOVamount { get; set; }
 
         [JsonPropertyName("globalFont")]
         public int GlobalFont { get; set; }
@@ -112,6 +112,9 @@ namespace eft_dma_radar
 
         [JsonPropertyName("instantADS")]
         public bool InstantADS { get; set; }
+
+        [JsonPropertyName("juggernaut")]
+        public bool Juggernaut { get; set; }
 
         [JsonPropertyName("logging")]
         public bool Logging { get; set; }
@@ -160,6 +163,9 @@ namespace eft_dma_radar
 
         [JsonPropertyName("maxDistance")]
         public float MaxDistance { get; set; }
+
+        [JsonPropertyName("medInfoPanel")]
+        public bool MedInfoPanel { get; set; }
 
         [JsonPropertyName("maxSkills")]
         public Dictionary<string, bool> MaxSkills { get; set; }
@@ -229,6 +235,13 @@ namespace eft_dma_radar
 
         [JsonPropertyName("radarStats")]
         public bool RadarStats { get; set; }
+
+        // waoowaowo
+        [JsonPropertyName("recoilMult")]
+        public bool RecoilMult { get; set; }
+
+        [JsonPropertyName("recoilMultAmount")]
+        public float RecoilMultAmount { get; set; }
 
         [JsonPropertyName("subItems")]
         public bool SubItems { get; set; }
@@ -484,6 +497,7 @@ namespace eft_dma_radar
             ImportantLootOnly = false;
             InfiniteStamina = false;
             InstantADS = false;
+            Juggernaut = false;
             Logging = false;
             LooseLoot = true;
             LootContainerSettings = DefaultContainerSettings;
@@ -501,6 +515,7 @@ namespace eft_dma_radar
             MasterSwitch = false;
             MaxDistance = 325;
             MaxSkills = DefaultMaxSkillsSettings;
+            MedInfoPanel = false;
             MinCorpseValue = 100000;
             MinImportantLootValue = 300000;
             MinLootValue = 90000;
@@ -553,9 +568,11 @@ namespace eft_dma_radar
             Hostname = "localhost";
             // waoowaowo
             CameraFOV = false;
-            CameraFOVamount = 75f;
+            CameraFOVamount = 75;
             InfiniteStaminaLegacy = false;
             InventoryBlur = false;
+            RecoilMult = false;
+            RecoilMultAmount = 1f;
         }
 
         /// <summary>

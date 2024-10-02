@@ -7,7 +7,7 @@ namespace eft_dma_radar
         private Thread autoRefreshThread;
         private CancellationTokenSource autoRefreshCancellationTokenSource;
 
-        private const int MAX_ATTEMPTS = 5;
+        private const int MAX_ATTEMPTS = 3;
 
         private bool extendedReach = false;
         private bool freezeTime = false;
@@ -26,6 +26,8 @@ namespace eft_dma_radar
         private bool FOVchanger = false;
         private float FOVchangerAmount = -1f;
         private bool infiniteStaminaLegacy = false;
+        private bool medInfoPanel = false;
+        private bool idlingMaxTime = false;
 
         private Dictionary<string, bool> Skills = new Dictionary<string, bool>
         {
@@ -183,8 +185,8 @@ namespace eft_dma_radar
                     catch (Exception ex)
                     {
                         attempts++;
-                        Program.Log("[ToolBox] Failed to get TOD_SKY, retrying in 1 second!");
-                        Thread.Sleep(1000);
+                        Program.Log("[ToolBox] Failed to get TOD_SKY, retrying in 500ms second!");
+                        Thread.Sleep(500);
 
                         if (attempts == MAX_ATTEMPTS)
                         {
@@ -206,8 +208,8 @@ namespace eft_dma_radar
                     catch (Exception ex)
                     {
                         attempts++;
-                        Program.Log("[ToolBox] Failed to get EFTHardSettings, retrying in 1 second!");
-                        Thread.Sleep(1000);
+                        Program.Log("[ToolBox] Failed to get EFTHardSettings, retrying in 500ms second!");
+                        Thread.Sleep(500);
 
                         if (attempts == MAX_ATTEMPTS)
                         {
@@ -239,6 +241,9 @@ namespace eft_dma_radar
                     // No Recoil / Sway
                     this._playerManager.SetNoRecoilSway(this._config.NoRecoilSway, ref entries);
 
+                    // Recoil Mult
+                    this._playerManager.SetRecoilMultiplier(this._config.RecoilMult, this._config.RecoilMultAmount, ref entries);
+
                     // Instant ADS
                     this._playerManager.SetInstantADS(this._config.InstantADS, ref entries);
 
@@ -256,6 +261,16 @@ namespace eft_dma_radar
                         this._playerManager.SetThirdPerson(this.thirdperson, ref entries);
                     }
 
+                    // Juggernaut
+                    if (this._config.Juggernaut)
+                        this._playerManager.SetJuggernaut(ref entries);
+
+                    // Item Usage Progress Bar
+                    if (this._config.MedInfoPanel != this.medInfoPanel)
+                    {
+                        this.medInfoPanel = this._config.MedInfoPanel;
+                        this.SetUsingProgressBar(this.medInfoPanel, ref entries);
+                    }
                     #region Skill Buffs
                     if (this._config.MaxSkills["Endurance"] != this.Skills["Endurance"])
                     {
@@ -467,18 +482,13 @@ namespace eft_dma_radar
                             this._cameraManager.NightVision(this.nightVision, ref entries);
                         }
 
-                        // FOV
-                        var fovChanged = this._config.CameraFOV != this.FOVchanger;
-                        var fovAmountChanged = this._config.CameraFOVamount != this.FOVchangerAmount;
-
-                        if (fovChanged || (this._config.CameraFOV && fovAmountChanged))
+                        // FOV (kinda ghetto but DAMN i wanna pro gamer 90 fov)
+                        if (this._config.CameraFOV)
                         {
-                            this.FOVchanger = this._config.CameraFOV;
-
-                            var factor = this.FOVchanger ? this._config.CameraFOVamount : 75f;
-
-                            if (factor != this.FOVchangerAmount)
-                                this._cameraManager.ChangeFOV(factor, ref entries);
+                            if (!this._playerManager.IsADS)
+                            {
+                                this._cameraManager.ChangeFOV(this._config.CameraFOVamount, ref entries);
+                            }
                         }
 
                         // Inventory Blur
@@ -540,6 +550,14 @@ namespace eft_dma_radar
                 entries.Add(new ScatterWriteDataEntry<float>(this.HardSettings + Offsets.EFTHardSettings.LOOT_RAYCAST_DISTANCE, 1.3f));
                 entries.Add(new ScatterWriteDataEntry<float>(this.HardSettings + Offsets.EFTHardSettings.DOOR_RAYCAST_DISTANCE, 1f));
             }
+        }
+
+        /// <summary>
+        /// Enable item usage progress bar from alpha
+        /// </summary>
+        private void SetUsingProgressBar(bool on, ref List<IScatterWriteEntry> entries)
+        {
+            entries.Add(new ScatterWriteDataEntry<bool>(this.HardSettings + Offsets.EFTHardSettings.MED_EFFECT_USING_PANEL, on));
         }
 
         /// <summary>

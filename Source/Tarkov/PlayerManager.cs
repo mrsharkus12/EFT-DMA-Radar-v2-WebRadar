@@ -22,7 +22,11 @@ namespace eft_dma_radar
         private ulong _playerBase;
         private ulong _playerProfile;
         public ulong _proceduralWeaponAnimation; //paskakoodi
-        private ulong _breathEffector; //paskakoodi
+
+        private ulong _breathEffector;
+        private ulong _walkEffector;
+        private ulong _motionEffector;
+        private ulong _forceEffector;
 
         private ulong _firmarmController;
         private ulong _skillsManager;
@@ -35,6 +39,9 @@ namespace eft_dma_radar
         private float _aimingSpeed;
         private int _mask;
         private string _lastWeaponID;
+        private int _physicalCondition;
+        private float _speedLimit;
+        private float _overweight;
 
         private Vector3 THIRD_PERSON_ON = new Vector3(0.04f, 0.14f, -2.2f);
         private Vector3 THIRD_PERSON_OFF = new Vector3(0.04f, 0.04f, 0.05f);
@@ -54,7 +61,12 @@ namespace eft_dma_radar
                 ["AimingSpeedSway"] = 0.2f,
                 ["StaminaCapacity"] = -1f,
                 ["HandStaminaCapacity"] = -1f,
-                ["weaponLn"] = -1f
+                ["weaponLn"] = -1f,
+
+                ["BreathEffectorIntensity"] = -1,
+                ["WalkEffectorIntensity"] = -1,
+                ["MotionEffectorIntensity"] = -1,
+                ["ForceEffectorIntensity"] = -1,
             };
 
             this.Skills = new Dictionary<string, Dictionary<string, Skill>>
@@ -230,9 +242,13 @@ namespace eft_dma_radar
             var staminaPtr = round3.AddEntry<ulong>(0, 6, physicalPtr, null, Offsets.Physical.Stamina);
             var handsStaminaPtr = round3.AddEntry<ulong>(0, 7, physicalPtr, null, Offsets.Physical.HandsStamina);
             var handsContainerPtr = round3.AddEntry<ulong>(0, 8, proceduralWeaponAnimationPtr, null, Offsets.ProceduralWeaponAnimation.HandsContainer);
-            var breathEffectorPtr = round3.AddEntry<ulong>(0, 9, proceduralWeaponAnimationPtr, null, Offsets.ProceduralWeaponAnimation.Breath); //paskakoodi
 
-            var startingIndex = 9; // last scattermap index + 1
+            var breathEffectorPtr = round3.AddEntry<ulong>(0, 9, proceduralWeaponAnimationPtr, null, Offsets.ProceduralWeaponAnimation.Breath);
+            var walkEffectorPtr = round3.AddEntry<ulong>(0, 10, proceduralWeaponAnimationPtr, null, Offsets.ProceduralWeaponAnimation.Walk);
+            var motionEffectorPtr = round3.AddEntry<ulong>(0, 11, proceduralWeaponAnimationPtr, null, Offsets.ProceduralWeaponAnimation.MotionReact);
+            var forceEffectorPtr = round3.AddEntry<ulong>(0, 12, proceduralWeaponAnimationPtr, null, Offsets.ProceduralWeaponAnimation.ForceReact);
+
+            var startingIndex = 13; // last scattermap index + 1
 
             SetupOriginalSkillValues(startingIndex, skillsManagerPtr, ref round4, ref round5);
 
@@ -256,7 +272,14 @@ namespace eft_dma_radar
                 return;
             if (!scatterMap.Results[0][8].TryGetResult<ulong>(out var handsContainer))
                 return;
-            if (!scatterMap.Results[0][9].TryGetResult<ulong>(out var georgefloyd)) //paskakoodi
+
+            if (!scatterMap.Results[0][9].TryGetResult<ulong>(out var breathEffector))
+                return;
+            if (!scatterMap.Results[0][10].TryGetResult<ulong>(out var walkEffector))
+                return;
+            if (!scatterMap.Results[0][11].TryGetResult<ulong>(out var motionEffector))
+                return;
+            if (!scatterMap.Results[0][12].TryGetResult<ulong>(out var forceEffector))
                 return;
 
             this._playerBase = playerBase;
@@ -268,13 +291,18 @@ namespace eft_dma_radar
             this._skillsManager = skillsManager;
             this._proceduralWeaponAnimation = proceduralWeaponAnimation;
             this._handsContainer = handsContainer;
-            this._breathEffector = georgefloyd;
+
+            this._breathEffector = breathEffector;
+            this._walkEffector = walkEffector;
+            this._motionEffector = motionEffector;
+            this._forceEffector = forceEffector;
 
             this.UpdateVariables();
 
-            ProcessOriginalSkillValues(startingIndex, ref scatterMap);
+            this.ProcessOriginalSkillValues(startingIndex, ref scatterMap);
         }
 
+        // No Recoil
         public void SetNoRecoilSway(bool on, ref List<IScatterWriteEntry> entries)
         {
             try
@@ -295,6 +323,61 @@ namespace eft_dma_radar
             }
         }
 
+        // Recoil Multplier
+        public void SetRecoilMultiplier(bool on, float mult, ref List<IScatterWriteEntry> entries)
+        {
+            try
+            {
+                if (on)
+                {
+                    entries.Add(new ScatterWriteDataEntry<float>(this._breathEffector + Offsets.BreathEffector.Intensity, mult));
+                    entries.Add(new ScatterWriteDataEntry<float>(this._walkEffector + Offsets.WalkEffector.Intensity, mult));
+                    entries.Add(new ScatterWriteDataEntry<float>(this._motionEffector + Offsets.MotionEffector.Intensity, mult));
+                    entries.Add(new ScatterWriteDataEntry<float>(this._forceEffector + Offsets.ForceEffector.Intensity, mult));
+                }
+                else if (!on)
+                {
+                    entries.Add(new ScatterWriteDataEntry<float>(this._breathEffector + Offsets.BreathEffector.Intensity, (int)this.OriginalValues["BreathEffectorIntensity"]));
+                    entries.Add(new ScatterWriteDataEntry<float>(this._walkEffector + Offsets.WalkEffector.Intensity, (int)this.OriginalValues["WalkEffectorIntensity"]));
+                    entries.Add(new ScatterWriteDataEntry<float>(this._motionEffector + Offsets.MotionEffector.Intensity, (int)this.OriginalValues["MotionEffectorIntensity"]));
+                    entries.Add(new ScatterWriteDataEntry<float>(this._forceEffector + Offsets.ForceEffector.Intensity, (int)this.OriginalValues["ForceEffectorIntensity"]));
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Log($"[PlayerManager] - SetRecoilMultiplier ({ex.Message})\n{ex.StackTrace}");
+            }
+        }
+
+        public void SetJuggernaut(ref List<IScatterWriteEntry> entries)
+        {
+            try
+            {
+                if (this._overweight != 0)
+                {
+                    entries.Add(new ScatterWriteDataEntry<float>(this._physical + Offsets.Physical.Overweight, 0f));
+                    entries.Add(new ScatterWriteDataEntry<float>(this._physical + Offsets.Physical.WalkOverweight, 0f));
+                    entries.Add(new ScatterWriteDataEntry<float>(this._physical + Offsets.Physical.WalkSpeedLimit, 1f));
+                    entries.Add(new ScatterWriteDataEntry<float>(this._physical + Offsets.Physical.PreviousWeight, 5f));
+                    entries.Add(new ScatterWriteDataEntry<float>(this._physical + Offsets.Physical.FallDamageMultiplier, 1f));
+                }
+
+                if (this._physicalCondition != 0)
+                    entries.Add(new ScatterWriteDataEntry<int>(this._movementContext + Offsets.MovementContext.PhysicalCondition, 0));
+
+                if (this._speedLimit != 1)
+                {
+                    entries.Add(new ScatterWriteDataEntry<float>(this._movementContext + Offsets.MovementContext.StateSpeedLimit, 1));
+                    entries.Add(new ScatterWriteDataEntry<float>(this._movementContext + Offsets.MovementContext.StateSprintSpeedLimit, 1));
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Log($"[PlayerManager] - Juggernaut ({ex.Message})\n{ex.StackTrace}");
+            }
+        }
+
+        // Loot Thru Walls
         public void SetLootThroughWalls(bool on, ref List<IScatterWriteEntry> entries)
         {
             try
@@ -320,6 +403,7 @@ namespace eft_dma_radar
             }
         }
 
+        // Instant ADS
         public void SetInstantADS(bool on, ref List<IScatterWriteEntry> entries)
         {
             try
@@ -515,11 +599,11 @@ namespace eft_dma_radar
             {
                 if (on && this._animationState == 5)
                 {
-                    entries.Add(new ScatterWriteDataEntry<byte>(this._baseMovementState + Offsets.BaseMovementState.Name, 6));
+                    //entries.Add(new ScatterWriteDataEntry<byte>(this._baseMovementState + Offsets.BaseMovementState.Name, 6));
                 }
                 else if (!on && this._animationState == 6)
                 {
-                    entries.Add(new ScatterWriteDataEntry<byte>(this._baseMovementState + Offsets.BaseMovementState.Name, 5));
+                    //entries.Add(new ScatterWriteDataEntry<byte>(this._baseMovementState + Offsets.BaseMovementState.Name, 5));
                 }
             }
             catch (Exception ex)

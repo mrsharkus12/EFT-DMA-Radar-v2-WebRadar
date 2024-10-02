@@ -18,9 +18,12 @@ namespace eft_dma_radar
         private bool invComponentFound = false;
         private bool opticThermalComponentFound = false;
 
+        private bool fovPtrFound = false;
+
         private ulong _unityBase;
         private ulong _opticCamera;
         private ulong _fpsCamera;
+        private ulong _fovPtr;
         private Matrik _viewMatrik;
 
         public bool IsReady
@@ -148,6 +151,12 @@ namespace eft_dma_radar
                     {
                         this.thermalComponent = this.GetComponentFromGameObject(this._fpsCamera, "ThermalVision");
                         this.fpsThermalComponentFound = this.thermalComponent != 0;
+                    }
+
+                    if (!this.fovPtrFound)
+                    {
+                        this._fovPtr = Memory.ReadPtrChain(this._fpsCamera, Offsets.CameraShit.viewmatrix);
+                        this.fovPtrFound = true;
                     }
 
                     if (!this.invComponentFound)
@@ -417,23 +426,23 @@ namespace eft_dma_radar
         /// <summary>
         /// public function to change FOV
         /// </summary>
-        public void ChangeFOV(float fov, ref List<IScatterWriteEntry> entries)
+        public void ChangeFOV(int fov, ref List<IScatterWriteEntry> entries)
         {
-            ulong FOV_ptr = Memory.ReadPtrChain(_fpsCamera, Offsets.CameraShit.viewmatrix);
-            ulong FOV_new = FOV_ptr + 0x15C;
-
             if (!this.IsReady)
                 return;
 
             try
             {
-                entries.Add(new ScatterWriteDataEntry<float>(FOV_new, fov));
+                var currentFOV = Memory.ReadValue<float>(this._fovPtr + 0x15C);
+                if (currentFOV != fov)
+                    entries.Add(new ScatterWriteDataEntry<float>(this._fovPtr + 0x15C, (float)fov));
             }
             catch (Exception ex)
             {
                 Program.Log($"CameraManager - FOVChanger ({ex.Message})\n{ex.StackTrace}");
             }
         }
+
         /// <summary>
         /// Public function to toggle InventoryBlur
         /// </summary>
@@ -442,9 +451,12 @@ namespace eft_dma_radar
             if (!this.IsReady)
                 return;
 
+            var invOpen = Memory.ReadValue<bool>(this.invComponent + Offsets.InventoryBlur.BlurEnabled);
+            
             try
             {
-                entries.Add(new ScatterWriteDataEntry<bool>(this.invComponent + Offsets.InventoryBlur.BlurEnabled, state));
+                if (invOpen)
+                    entries.Add(new ScatterWriteDataEntry<bool>(this.invComponent + Offsets.InventoryBlur.BlurEnabled, state));
             }
             catch (Exception ex)
             {

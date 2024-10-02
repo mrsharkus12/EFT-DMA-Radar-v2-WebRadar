@@ -564,7 +564,15 @@ namespace eft_dma_radar
             // waoowaowo
             swFOVChanger.Checked = _config.CameraFOV;
             sldrCameraFOV.Enabled = _config.CameraFOV;
+            swInventoryBlur.Checked = _config.InventoryBlur;
             sldrCameraFOV.Value = (int)_config.CameraFOVamount;
+            swRecoilMultiplier.Checked = _config.RecoilMult;
+            sldrRecoilMultiplierFactor.Enabled = _config.RecoilMult;
+            sldrRecoilMultiplierFactor.Value = (int)(_config.RecoilMultAmount * 10);
+            lblSettingsMemoryWritingRecoilMultFactor.Text = $"x{(_config.RecoilMultAmount)}";
+            lblSettingsMemoryWritingRecoilMultFactor.Enabled = _config.RecoilMult;
+            swMedInfoPanel.Checked = _config.MedInfoPanel;
+            swJuggernaut.Checked = _config.Juggernaut;
 
             // Gear Features
             mcSettingsMemoryWritingGear.Enabled = _config.MasterSwitch;
@@ -3798,6 +3806,7 @@ private enum ConsoleCtrlEvent
         {
             _config.Chams["RevertOnClose"] = swChamsRevert.Checked;
         }
+
         // waoowaowo
         private void swFOVChanger_CheckedChanged(object sender, EventArgs e)
         {
@@ -3808,7 +3817,7 @@ private enum ConsoleCtrlEvent
 
         private void sldrCameraFOV_onValueChanged(object sender, int newValue)
         {
-            _config.CameraFOVamount = (float)sldrCameraFOV.Value;
+            _config.CameraFOVamount = sldrCameraFOV.Value;
         }
 
         private void swInfStaminaOld_CheckedChanged(object sender, EventArgs e)
@@ -3819,6 +3828,34 @@ private enum ConsoleCtrlEvent
         {
             _config.InventoryBlur = swInventoryBlur.Checked;
         }
+        private void swRecoilMultiplier_CheckedChanged(object sender, EventArgs e)
+        {
+            var enabled = swRecoilMultiplier.Checked;
+            _config.RecoilMult = enabled;
+            sldrRecoilMultiplierFactor.Enabled = enabled;
+
+            lblSettingsMemoryWritingRecoilMultFactor.Enabled = enabled;
+        }
+
+        private void sldrRecoilMultiplierFactor_onValueChanged(object sender, int newValue)
+        {
+            if (newValue < 1)
+                newValue = 1;
+            else if (newValue > 20)
+                newValue = 20;
+
+            _config.RecoilMultAmount = (float)newValue / 10;
+            lblSettingsMemoryWritingRecoilMultFactor.Text = $"x{(_config.RecoilMultAmount)}";
+        }
+        private void swMedInfoPanel_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.MedInfoPanel = swMedInfoPanel.Checked;
+        }
+        private void swJuggernaut_CheckedChanged(object sender, EventArgs e)
+        {
+            _config.Juggernaut = swJuggernaut.Checked;
+        }
+
         #endregion
         #endregion
 
