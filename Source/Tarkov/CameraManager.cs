@@ -19,11 +19,13 @@ namespace eft_dma_radar
         private bool opticThermalComponentFound = false;
 
         private bool fovPtrFound = false;
+        private bool opticfovPtrFound = false;
 
         private ulong _unityBase;
         private ulong _opticCamera;
         private ulong _fpsCamera;
         private ulong _fovPtr;
+        private ulong _opticfovPtr;
         private Matrik _viewMatrik;
 
         public bool IsReady
@@ -128,6 +130,12 @@ namespace eft_dma_radar
                     {
                         this.opticThermalComponent = this.GetComponentFromGameObject(this._opticCamera, "ThermalVision");
                         this.opticThermalComponentFound = this.opticThermalComponent != 0;
+                    }
+
+                    if (!this.opticfovPtrFound)
+                    {
+                        this._opticfovPtr = Memory.ReadPtrChain(this._opticCamera, Offsets.CameraShit.viewmatrix);
+                        this.opticfovPtrFound = true;
                     }
 
                     foundOpticCamera = this.opticThermalComponentFound;
@@ -440,6 +448,28 @@ namespace eft_dma_radar
             catch (Exception ex)
             {
                 Program.Log($"CameraManager - FOVChanger ({ex.Message})\n{ex.StackTrace}");
+            }
+        }
+
+        /// <summary>
+        /// public function to change optic FOV
+        /// </summary>
+        public void ChangeOpticFOV(int fov, ref List<IScatterWriteEntry> entries)
+        {
+            ulong opticComponent = GetOpticComponent();
+
+            if (opticComponent == 0)
+                return;
+
+            try
+            {
+                var currentFOV = Memory.ReadValue<float>(this._opticfovPtr + 0x15C);
+                if (currentFOV != fov)
+                    entries.Add(new ScatterWriteDataEntry<float>(this._opticfovPtr + 0x15C, (float)fov));
+            }
+            catch (Exception ex)
+            {
+                Program.Log($"CameraManager - OpticFOVChanger ({ex.Message})\n{ex.StackTrace}");
             }
         }
 

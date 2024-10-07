@@ -564,8 +564,8 @@ namespace eft_dma_radar
             // waoowaowo
             swFOVChanger.Checked = _config.CameraFOV;
             sldrCameraFOV.Enabled = _config.CameraFOV;
-            swInventoryBlur.Checked = _config.InventoryBlur;
             sldrCameraFOV.Value = (int)_config.CameraFOVamount;
+            swInventoryBlur.Checked = _config.InventoryBlur;
             swRecoilMultiplier.Checked = _config.RecoilMult;
             sldrRecoilMultiplierFactor.Enabled = _config.RecoilMult;
             sldrRecoilMultiplierFactor.Value = (int)(_config.RecoilMultAmount * 10);
@@ -573,6 +573,9 @@ namespace eft_dma_radar
             lblSettingsMemoryWritingRecoilMultFactor.Enabled = _config.RecoilMult;
             swMedInfoPanel.Checked = _config.MedInfoPanel;
             swJuggernaut.Checked = _config.Juggernaut;
+            swOpticFOVChanger.Checked = _config.OpticFOV;
+            sldrOpticFOV.Enabled = _config.OpticFOV;
+            sldrOpticFOV.Value = (int)_config.OpticFOVamount;
 
             // Gear Features
             mcSettingsMemoryWritingGear.Enabled = _config.MasterSwitch;
@@ -3836,7 +3839,6 @@ private enum ConsoleCtrlEvent
 
             lblSettingsMemoryWritingRecoilMultFactor.Enabled = enabled;
         }
-
         private void sldrRecoilMultiplierFactor_onValueChanged(object sender, int newValue)
         {
             if (newValue < 1)
@@ -3855,6 +3857,18 @@ private enum ConsoleCtrlEvent
         {
             _config.Juggernaut = swJuggernaut.Checked;
         }
+        private void swOpticFOVChanger_CheckedChanged(object sender, EventArgs e)
+        {
+            var enabled = swOpticFOVChanger.Checked;
+            _config.OpticFOV = enabled;
+            sldrOpticFOV.Enabled = enabled;
+        }
+
+        private void sldrOpticFOV_onValueChanged(object sender, int newValue)
+        {
+            _config.OpticFOVamount = sldrOpticFOV.Value;
+        }
+
 
         #endregion
         #endregion

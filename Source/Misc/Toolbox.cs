@@ -476,6 +476,12 @@ namespace eft_dma_radar
                             }
                         }
 
+                        // optic FOV
+                        if (this._config.OpticFOV)
+                        {
+                            this._cameraManager.ChangeOpticFOV(this._config.OpticFOVamount, ref entries);
+                        }
+
                         // Night Vision
                         if (this._config.NightVision != this.nightVision)
                         {

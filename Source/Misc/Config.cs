@@ -194,6 +194,13 @@ namespace eft_dma_radar
         [JsonPropertyName("noWeaponMalfunctions")]
         public bool NoWeaponMalfunctions { get; set; }
 
+        // waoowaowo
+        [JsonPropertyName("opticFOV")]
+        public bool OpticFOV { get; set; }
+
+        [JsonPropertyName("opticFOVamount")]
+        public int OpticFOVamount { get; set; }
+
         [JsonPropertyName("opticThermalSetting")]
         public ThermalSettings OpticThermalSetting { get; set; }
 
@@ -573,6 +580,10 @@ namespace eft_dma_radar
             InventoryBlur = false;
             RecoilMult = false;
             RecoilMultAmount = 1f;
+            Juggernaut = false;
+            MedInfoPanel = false;
+            OpticFOV = false;
+            OpticFOVamount = 15;
         }
 
         /// <summary>

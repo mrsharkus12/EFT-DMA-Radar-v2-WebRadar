@@ -85,6 +85,8 @@
             swInventoryBlur = new MaterialSkin.Controls.MaterialSwitch();
             sldrRecoilMultiplierFactor = new MaterialSkin.Controls.MaterialSlider();
             swRecoilMultiplier = new MaterialSkin.Controls.MaterialSwitch();
+            swMedInfoPanel = new MaterialSkin.Controls.MaterialSwitch();
+            swJuggernaut = new MaterialSkin.Controls.MaterialSwitch();
             cboThermalColorScheme = new MaterialSkin.Controls.MaterialComboBox();
             cboThermalType = new MaterialSkin.Controls.MaterialComboBox();
             sldrMinCorpse = new MaterialSkin.Controls.MaterialSlider();
@@ -419,8 +421,8 @@
             colLootFilterItemName = new ColumnHeader();
             colLootFilterItemValue = new ColumnHeader();
             iconList = new ImageList(components);
-            swMedInfoPanel = new MaterialSkin.Controls.MaterialSwitch();
-            swJuggernaut = new MaterialSkin.Controls.MaterialSwitch();
+            swOpticFOVChanger = new MaterialSkin.Controls.MaterialSwitch();
+            sldrOpticFOV = new MaterialSkin.Controls.MaterialSlider();
             tabSettingAimbot.SuspendLayout();
             mcAimBotTargetSettings.SuspendLayout();
             mcAimBotSettings.SuspendLayout();
@@ -1291,24 +1293,6 @@
             swThermalVision.UseVisualStyleBackColor = true;
             swThermalVision.CheckedChanged += swThermalVision_CheckedChanged;
             // 
-            // sldrCameraFOV
-            // 
-            sldrCameraFOV.Depth = 0;
-            sldrCameraFOV.ForeColor = Color.Black;
-            sldrCameraFOV.Location = new Point(221, 193);
-            sldrCameraFOV.MouseState = MaterialSkin.MouseState.HOVER;
-            sldrCameraFOV.Name = "sldrCameraFOV";
-            sldrCameraFOV.RangeMax = 175;
-            sldrCameraFOV.RangeMin = 5;
-            sldrCameraFOV.Size = new Size(243, 40);
-            sldrCameraFOV.TabIndex = 48;
-            sldrCameraFOV.Text = "FOV Amount";
-            toolTip.SetToolTip(sldrCameraFOV, "Amount to change FPP camera FOV");
-            sldrCameraFOV.UseAccentColor = true;
-            sldrCameraFOV.Value = 75;
-            sldrCameraFOV.ValueMax = 175;
-            sldrCameraFOV.onValueChanged += sldrCameraFOV_onValueChanged;
-            // 
             // swInfStaminaOld
             // 
             swInfStaminaOld.Depth = 0;
@@ -1342,6 +1326,59 @@
             toolTip.SetToolTip(swFOVChanger, "Enable FOV changer");
             swFOVChanger.UseVisualStyleBackColor = true;
             swFOVChanger.CheckedChanged += swFOVChanger_CheckedChanged;
+            // 
+            // sldrCameraFOV
+            // 
+            sldrCameraFOV.Depth = 0;
+            sldrCameraFOV.ForeColor = Color.Black;
+            sldrCameraFOV.Location = new Point(221, 193);
+            sldrCameraFOV.MouseState = MaterialSkin.MouseState.HOVER;
+            sldrCameraFOV.Name = "sldrCameraFOV";
+            sldrCameraFOV.RangeMax = 175;
+            sldrCameraFOV.RangeMin = 5;
+            sldrCameraFOV.Size = new Size(243, 40);
+            sldrCameraFOV.TabIndex = 48;
+            sldrCameraFOV.Text = "FOV Amount";
+            toolTip.SetToolTip(sldrCameraFOV, "Amount to change FPP camera FOV");
+            sldrCameraFOV.UseAccentColor = true;
+            sldrCameraFOV.Value = 75;
+            sldrCameraFOV.ValueMax = 175;
+            sldrCameraFOV.onValueChanged += sldrCameraFOV_onValueChanged;
+            // 
+            // swOpticFOVChanger
+            // 
+            swOpticFOVChanger.Depth = 0;
+            swOpticFOVChanger.Font = new Font("Segoe UI", 9F);
+            swOpticFOVChanger.Location = new Point(15, 237);
+            swOpticFOVChanger.Margin = new Padding(0);
+            swOpticFOVChanger.MouseLocation = new Point(-1, -1);
+            swOpticFOVChanger.MouseState = MaterialSkin.MouseState.HOVER;
+            swOpticFOVChanger.Name = "swOpticFOVChanger";
+            swOpticFOVChanger.Ripple = true;
+            swOpticFOVChanger.Size = new Size(154, 28);
+            swOpticFOVChanger.TabIndex = 56;
+            swOpticFOVChanger.Text = "Optic FOV";
+            toolTip.SetToolTip(swOpticFOVChanger, "Enable FOV changer");
+            swOpticFOVChanger.UseVisualStyleBackColor = true;
+            swOpticFOVChanger.CheckedChanged += swOpticFOVChanger_CheckedChanged;
+            // 
+            // sldrOpticFOV
+            // 
+            sldrOpticFOV.Depth = 0;
+            sldrOpticFOV.ForeColor = Color.Black;
+            sldrOpticFOV.Location = new Point(219, 231);
+            sldrOpticFOV.MouseState = MaterialSkin.MouseState.HOVER;
+            sldrOpticFOV.Name = "sldrOpticFOV";
+            sldrOpticFOV.RangeMax = 175;
+            sldrOpticFOV.RangeMin = 5;
+            sldrOpticFOV.Size = new Size(243, 40);
+            sldrOpticFOV.TabIndex = 55;
+            sldrOpticFOV.Text = "FOV Amount";
+            toolTip.SetToolTip(sldrOpticFOV, "Amount to change FPP camera FOV");
+            sldrOpticFOV.UseAccentColor = true;
+            sldrOpticFOV.Value = 75;
+            sldrOpticFOV.ValueMax = 175;
+            sldrOpticFOV.onValueChanged += sldrOpticFOV_onValueChanged;
             // 
             // sldrMagDrillsSpeed
             // 
@@ -4910,7 +4947,7 @@
             mcSettingsMemoryWritingThermal.Controls.Add(sldrThermalRampShift);
             mcSettingsMemoryWritingThermal.Depth = 0;
             mcSettingsMemoryWritingThermal.ForeColor = Color.FromArgb(222, 0, 0, 0);
-            mcSettingsMemoryWritingThermal.Location = new Point(17, 599);
+            mcSettingsMemoryWritingThermal.Location = new Point(17, 632);
             mcSettingsMemoryWritingThermal.Margin = new Padding(14);
             mcSettingsMemoryWritingThermal.MouseState = MaterialSkin.MouseState.HOVER;
             mcSettingsMemoryWritingThermal.Name = "mcSettingsMemoryWritingThermal";
@@ -5016,6 +5053,8 @@
             // mcSettingsMemoryWritingGear
             // 
             mcSettingsMemoryWritingGear.BackColor = Color.FromArgb(255, 255, 255);
+            mcSettingsMemoryWritingGear.Controls.Add(swOpticFOVChanger);
+            mcSettingsMemoryWritingGear.Controls.Add(sldrOpticFOV);
             mcSettingsMemoryWritingGear.Controls.Add(swJuggernaut);
             mcSettingsMemoryWritingGear.Controls.Add(swMedInfoPanel);
             mcSettingsMemoryWritingGear.Controls.Add(lblSettingsMemoryWritingRecoilMultFactor);
@@ -5038,7 +5077,7 @@
             mcSettingsMemoryWritingGear.MouseState = MaterialSkin.MouseState.HOVER;
             mcSettingsMemoryWritingGear.Name = "mcSettingsMemoryWritingGear";
             mcSettingsMemoryWritingGear.Padding = new Padding(14);
-            mcSettingsMemoryWritingGear.Size = new Size(533, 241);
+            mcSettingsMemoryWritingGear.Size = new Size(533, 273);
             mcSettingsMemoryWritingGear.TabIndex = 39;
             // 
             // lblSettingsMemoryWritingRecoilMultFactor
@@ -7605,6 +7644,8 @@
         private MaterialSkin.Controls.MaterialSwitch swRecoilMultiplier;
         private MaterialSkin.Controls.MaterialSwitch swJuggernaut;
         private MaterialSkin.Controls.MaterialSwitch swMedInfoPanel;
+        private MaterialSkin.Controls.MaterialSwitch swOpticFOVChanger;
+        private MaterialSkin.Controls.MaterialSlider sldrOpticFOV;
         //WebRadar
     }        
     
