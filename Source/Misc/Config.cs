@@ -217,6 +217,9 @@ namespace eft_dma_radar
         [JsonPropertyName("nightVision")]
         public bool NightVision { get; set; }
 
+        [JsonPropertyName("noRecoil")]
+        public bool NoRecoil { get; set; }
+
         [JsonPropertyName("noVisor")]
         public bool NoVisor { get; set; }
 
@@ -581,7 +584,8 @@ namespace eft_dma_radar
             MinImportantLootValue = 300000;
             MinLootValue = 90000;
             MinSubItemValue = 15000;
-            NightVision = false;           
+            NightVision = false;
+            NoRecoil = false;
             NoVisor = false;
             NoWeaponMalfunctions = false;
             OpticThermalSetting = DefaultThermalSettings;
@@ -694,6 +698,7 @@ namespace eft_dma_radar
             {
                 "Chams" => this.Chams["Enabled"],
                 "Important Loot" => this.ImportantLootOnly,
+                "Mask" => this.NoRecoil,
                 "No Recoil" => this.Recoil,
                 "No Sway" => this.WeaponSway,
                 "Optical Thermal" => this.OpticThermalVision,

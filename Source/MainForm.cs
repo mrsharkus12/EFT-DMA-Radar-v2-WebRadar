@@ -119,6 +119,7 @@ namespace eft_dma_radar
             "Chams",
             "Important Loot",
             "Optical Thermal",
+            "Mask",
             "Recoil",
             "Show Containers",
             "Show Corpses",
@@ -614,6 +615,7 @@ namespace eft_dma_radar
                 { HotkeyAction.Chams, this.SetChams },
                 { HotkeyAction.ImportantLoot, this.SetImportantLootOnly },
                 { HotkeyAction.OpticalThermal, this.SetOpticalThermal },
+                { HotkeyAction.Mask, this.SetMask },
                 { HotkeyAction.Recoil, this.SetRecoil },
                 { HotkeyAction.ShowContainers, this.SetShowContainers },
                 { HotkeyAction.ShowCorpses, this.SetShowCorpses },
@@ -729,6 +731,7 @@ namespace eft_dma_radar
 
             // Gear Features
             mcSettingsMemoryWritingGear.Enabled = this.config.MasterSwitch;
+            swWeaponMask.Checked = this.config.NoRecoil;
             swRecoil.Checked = this.config.Recoil;
             swWeaponSway.Checked = this.config.WeaponSway;
             sldrXFactor.Enabled = this.config.Recoil;
@@ -3751,6 +3754,12 @@ namespace eft_dma_radar
             swFilteredOnly.Checked = enabled;
         }
 
+        private void SetMask(bool enabled)
+        {
+            this.config.NoRecoil = enabled;
+            swWeaponMask.Checked = enabled;
+        }
+
         private void SetRecoil(bool enabled)
         {
             this.config.Recoil = enabled;
@@ -4135,6 +4144,12 @@ namespace eft_dma_radar
         private void swMedPanel_CheckedChanged(object sender, EventArgs e)
         {
             this.config.MedInfoPanel = swMedPanel.Checked;
+        }
+
+        private void swWeaponMask_CheckedChanged(object sender, EventArgs e)
+        {
+            var enabled = swWeaponMask.Checked;
+            this.config.NoRecoil = enabled;
         }
 
         private void swRecoil_CheckedChanged(object sender, EventArgs e)

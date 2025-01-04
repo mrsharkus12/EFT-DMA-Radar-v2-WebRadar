@@ -280,6 +280,7 @@ namespace eft_dma_radar
         Chams,
         ImportantLoot,
         OpticalThermal,
+        Mask,
         Recoil,
         ShowContainers,
         ShowCorpses,

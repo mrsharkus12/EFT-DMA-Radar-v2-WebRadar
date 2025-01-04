@@ -248,6 +248,8 @@ namespace eft_dma_radar
                     this._playerManager.UpdateVariables();
 
                     // No Recoil / Sway
+                    this._playerManager.SetNoRecoil(this._config.NoRecoil, ref entries);
+
                     this._playerManager.SetRecoil(this._config.Recoil, this._config.RecoilXPercent, this._config.RecoilYPercent, ref entries);
                     this._playerManager.SetWeaponSway(this._config.WeaponSway, this._config.WeaponSwayPercent, ref entries);
 

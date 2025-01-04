@@ -287,6 +287,24 @@ namespace eft_dma_radar
             this.ProcessOriginalSkillValues(startingIndex, ref scatterMap);
         }
 
+        public void SetNoRecoil(bool on, ref List<IScatterWriteEntry> entries)
+        {
+            try
+            {
+                if (on && this._mask != 1)
+                    entries.Add(new ScatterWriteDataEntry<int>(this._proceduralWeaponAnimation + Offsets.ProceduralWeaponAnimation.Mask, 1));
+                else if (!on && this._mask == 1)
+                    entries.Add(new ScatterWriteDataEntry<int>(this._proceduralWeaponAnimation + Offsets.ProceduralWeaponAnimation.Mask, (int)this.OriginalValues["Mask"]));
+
+                if (on && this._breathIntensity != 0f)
+                    entries.Add(new ScatterWriteDataEntry<float>(this._breathEffector + Offsets.BreathEffector.Intensity, 0f));
+            }
+            catch (Exception ex)
+            {
+                Program.Log($"[PlayerManager] - SetNoRecoil ({ex.Message})\n{ex.StackTrace}");
+            }
+        }
+
         public void SetRecoil(bool on, float xIntensity, float yIntensity, ref List<IScatterWriteEntry> entries)
         {
             try
@@ -298,7 +316,7 @@ namespace eft_dma_radar
             }
             catch (Exception ex)
             {
-                Program.Log($"[PlayerManager] - SetNoRecoil ({ex.Message})\n{ex.StackTrace}");
+                Program.Log($"[PlayerManager] - SetRecoil ({ex.Message})\n{ex.StackTrace}");
             }
         }
 
@@ -311,7 +329,7 @@ namespace eft_dma_radar
             }
             catch (Exception ex)
             {
-                Program.Log($"[PlayerManager] - SetNoSway ({ex.Message})\n{ex.StackTrace}");
+                Program.Log($"[PlayerManager] - SetWeaponSway ({ex.Message})\n{ex.StackTrace}");
             }
         }
 
