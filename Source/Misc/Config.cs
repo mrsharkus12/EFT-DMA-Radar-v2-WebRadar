@@ -708,6 +708,8 @@ namespace eft_dma_radar
                 "Thirdperson" => this.Thirdperson,
                 "Thermal Vision" => this.ThermalVision,
                 "Timescale" => this.TimeScale,
+                "Toggle Aimbot" => this.EnableAimbot,
+                "Toggle SilentAim" => this.SAEnableAimbot,
                 _ => false
             };
         }

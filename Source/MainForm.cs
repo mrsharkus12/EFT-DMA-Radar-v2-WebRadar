@@ -128,6 +128,8 @@ namespace eft_dma_radar
             "Thermal Vision",
             "Time Scale",
             "Weapon Sway",
+            "Toggle Aimbot",
+            "Toggle SilentAim",
             "Zoom In",
             "Zoom Out"
         };
@@ -624,6 +626,8 @@ namespace eft_dma_radar
                 { HotkeyAction.ThermalVision, this.SetThermalVision },
                 { HotkeyAction.TimeScale, this.SetTimescale },
                 { HotkeyAction.WeaponSway, this.SetWeaponSway },
+                { HotkeyAction.ToggleAimbot, this.SetAimbot },
+                { HotkeyAction.ToggleSilentAim, this.SetSilentAim },
             };
         }
 
@@ -3812,6 +3816,18 @@ namespace eft_dma_radar
         {
             this.config.Thirdperson = enabled;
             swThirdperson.Checked = enabled;
+        }
+
+        private void SetAimbot(bool enabled)
+        {
+            this.config.EnableAimbot = enabled;
+            swEnableAimBot.Checked = enabled;
+        }
+
+        private void SetSilentAim(bool enabled)
+        {
+            this.config.SAEnableAimbot = enabled;
+            msSAEnableSilentAim.Checked = enabled;
         }
 
         private void UpdateHotkeyEntryData()

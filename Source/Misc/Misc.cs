@@ -289,6 +289,8 @@ namespace eft_dma_radar
         ThermalVision,
         TimeScale,
         WeaponSway,
+        ToggleAimbot,
+        ToggleSilentAim,
         ZoomIn,
         ZoomOut
     }
