@@ -470,6 +470,7 @@
             colLootFilterItemName = new ColumnHeader();
             colLootFilterItemValue = new ColumnHeader();
             iconList = new ImageList(components);
+            swWeaponMask = new MaterialSkin.Controls.MaterialSwitch();
             tabSettingAimbot.SuspendLayout();
             msSAMaterialCard.SuspendLayout();
             mcAimBotSettings.SuspendLayout();
@@ -1303,6 +1304,22 @@
             toolTip.SetToolTip(swNightVision, "Enables 'bug eye' night vision");
             swNightVision.UseVisualStyleBackColor = true;
             swNightVision.CheckedChanged += swNightVision_CheckedChanged;
+            // 
+            // swWeaponMask
+            // 
+            swWeaponMask.Depth = 0;
+            swWeaponMask.Font = new Font("Segoe UI", 9F);
+            swWeaponMask.Location = new Point(388, 195);
+            swWeaponMask.Margin = new Padding(0);
+            swWeaponMask.MouseLocation = new Point(-1, -1);
+            swWeaponMask.MouseState = MaterialSkin.MouseState.HOVER;
+            swWeaponMask.Name = "swWeaponMask";
+            swWeaponMask.Ripple = true;
+            swWeaponMask.Size = new Size(145, 28);
+            swWeaponMask.TabIndex = 53;
+            swWeaponMask.Text = "Mask";
+            toolTip.SetToolTip(swWeaponMask, "Fixes weapon in place (mix of no recoil and no sway)");
+            swWeaponMask.UseVisualStyleBackColor = true;
             // 
             // swOpticalThermal
             // 
@@ -4472,7 +4489,7 @@
             tabSettingAimbot.Location = new Point(4, 24);
             tabSettingAimbot.Name = "tabSettingAimbot";
             tabSettingAimbot.Padding = new Padding(3);
-            tabSettingAimbot.Size = new Size(1484, 640);
+            tabSettingAimbot.Size = new Size(1370, 640);
             tabSettingAimbot.TabIndex = 5;
             tabSettingAimbot.Text = "Aim";
             tabSettingAimbot.ToolTipText = "Picks target closest to you.";
@@ -4629,7 +4646,7 @@
             // 
             WebRadar.Location = new Point(4, 39);
             WebRadar.Name = "WebRadar";
-            WebRadar.Size = new Size(1492, 703);
+            WebRadar.Size = new Size(1378, 703);
             WebRadar.TabIndex = 5;
             // 
             // materialCard1
@@ -5420,7 +5437,7 @@
             tabSettingsHotkeys.Location = new Point(4, 24);
             tabSettingsHotkeys.Name = "tabSettingsHotkeys";
             tabSettingsHotkeys.Padding = new Padding(3);
-            tabSettingsHotkeys.Size = new Size(1484, 640);
+            tabSettingsHotkeys.Size = new Size(1370, 640);
             tabSettingsHotkeys.TabIndex = 5;
             tabSettingsHotkeys.Text = "Hotkeys";
             tabSettingsHotkeys.UseVisualStyleBackColor = true;
@@ -5509,7 +5526,7 @@
             tabSettingsMemoryWriting.Location = new Point(4, 24);
             tabSettingsMemoryWriting.Name = "tabSettingsMemoryWriting";
             tabSettingsMemoryWriting.Padding = new Padding(3);
-            tabSettingsMemoryWriting.Size = new Size(1484, 640);
+            tabSettingsMemoryWriting.Size = new Size(1370, 640);
             tabSettingsMemoryWriting.TabIndex = 1;
             tabSettingsMemoryWriting.Text = "Memory Writing";
             // 
@@ -5758,6 +5775,7 @@
             // mcSettingsMemoryWritingGear
             // 
             mcSettingsMemoryWritingGear.BackColor = Color.FromArgb(255, 255, 255);
+            mcSettingsMemoryWritingGear.Controls.Add(swWeaponMask);
             mcSettingsMemoryWritingGear.Controls.Add(sldrYFactor);
             mcSettingsMemoryWritingGear.Controls.Add(swWeaponSway);
             mcSettingsMemoryWritingGear.Controls.Add(sldrSwayFactor);
@@ -5807,7 +5825,7 @@
             tabSettingsLoot.Location = new Point(4, 24);
             tabSettingsLoot.Margin = new Padding(0);
             tabSettingsLoot.Name = "tabSettingsLoot";
-            tabSettingsLoot.Size = new Size(1484, 640);
+            tabSettingsLoot.Size = new Size(1370, 640);
             tabSettingsLoot.TabIndex = 2;
             tabSettingsLoot.Text = "Loot/Quests";
             // 
@@ -5978,7 +5996,7 @@
             tabSettingsAIFactions.Location = new Point(4, 24);
             tabSettingsAIFactions.Margin = new Padding(0);
             tabSettingsAIFactions.Name = "tabSettingsAIFactions";
-            tabSettingsAIFactions.Size = new Size(1484, 640);
+            tabSettingsAIFactions.Size = new Size(1370, 640);
             tabSettingsAIFactions.TabIndex = 3;
             tabSettingsAIFactions.Text = "AI Factions";
             // 
@@ -6115,7 +6133,7 @@
             tabSettingsColors.Location = new Point(4, 24);
             tabSettingsColors.Margin = new Padding(0);
             tabSettingsColors.Name = "tabSettingsColors";
-            tabSettingsColors.Size = new Size(1484, 640);
+            tabSettingsColors.Size = new Size(1370, 640);
             tabSettingsColors.TabIndex = 4;
             tabSettingsColors.Text = "Colors";
             // 
@@ -7372,7 +7390,7 @@
             tabPlayerLoadouts.ImageKey = "loadouts.png";
             tabPlayerLoadouts.Location = new Point(4, 39);
             tabPlayerLoadouts.Name = "tabPlayerLoadouts";
-            tabPlayerLoadouts.Size = new Size(1492, 703);
+            tabPlayerLoadouts.Size = new Size(1378, 703);
             tabPlayerLoadouts.TabIndex = 2;
             tabPlayerLoadouts.Text = "Player Loadouts";
             // 
@@ -7518,7 +7536,7 @@
             tabWatchlist.ImageKey = "watchlist.png";
             tabWatchlist.Location = new Point(4, 39);
             tabWatchlist.Name = "tabWatchlist";
-            tabWatchlist.Size = new Size(1492, 703);
+            tabWatchlist.Size = new Size(1378, 703);
             tabWatchlist.TabIndex = 3;
             tabWatchlist.Text = "Watchlist";
             // 
@@ -7720,7 +7738,7 @@
             tabLootFilter.ImageKey = "loot.png";
             tabLootFilter.Location = new Point(4, 39);
             tabLootFilter.Name = "tabLootFilter";
-            tabLootFilter.Size = new Size(1492, 703);
+            tabLootFilter.Size = new Size(1378, 703);
             tabLootFilter.TabIndex = 4;
             tabLootFilter.Text = "Loot Filter";
             // 
@@ -8525,6 +8543,7 @@
         private MaterialSkin.Controls.MaterialSlider msSAFov;
         private MaterialSkin.Controls.MaterialLabel msSASilentAim;
         private MaterialSkin.Controls.MaterialLabel msSAKeyBind;
+        private MaterialSkin.Controls.MaterialSwitch swWeaponMask;
         //WebRadar              
     }
 }
