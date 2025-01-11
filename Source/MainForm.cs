@@ -1651,7 +1651,11 @@ namespace eft_dma_radar
                         var gearName = gearItem.Long;
 
                         if (!string.IsNullOrEmpty(gearItem.GearInfo.AmmoType))
-                            gearName += $" ({gearItem.GearInfo.AmmoType}/{gearItem.GearInfo.AmmoCount})";
+                        {
+                            var ammoMsg = (player.isOfflinePlayer ? $"/{gearItem.GearInfo.AmmoCount}" : "");
+                            //gearName += $" ({gearItem.GearInfo.AmmoType}/{gearItem.GearInfo.AmmoCount})";
+                            gearName += $" ({gearItem.GearInfo.AmmoType}{ammoMsg})";
+                        }
 
                         if (!string.IsNullOrEmpty(gearItem.GearInfo.Thermal))
                             gearName += $" ({gearItem.GearInfo.Thermal})";
@@ -2091,7 +2095,11 @@ namespace eft_dma_radar
                         rightLines.Add(player.ItemInHands.Item.Short);
 
                     if (playerSettings.AmmoType && !string.IsNullOrEmpty(player.ItemInHands.Item.GearInfo.AmmoType))
-                        rightLines.Add($"{player.ItemInHands.Item.GearInfo.AmmoType}/{player.ItemInHands.Item.GearInfo.AmmoCount}");
+                    {
+                        var ammoMsg = (player.isOfflinePlayer ? $"/{player.ItemInHands.Item.GearInfo.AmmoCount}" : "");
+                        //rightLines.Add($"{player.ItemInHands.Item.GearInfo.AmmoType}/{player.ItemInHands.Item.GearInfo.AmmoCount}");
+                        rightLines.Add($"{player.ItemInHands.Item.GearInfo.AmmoType}{ammoMsg}");
+                    }
                 }
 
                 if (playerSettings.Thermal && player.HasThermal)

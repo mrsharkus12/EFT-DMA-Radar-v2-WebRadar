@@ -525,9 +525,9 @@ namespace eft_dma_radar
             }
         }
 
-        public void SetItemInHands(ulong pointer)
+        public void UpdateItemInHands()
         {
-            this.ItemInHands = this.GearManager.GearItems.FirstOrDefault(x => x.Pointer == pointer);
+            this.ItemInHands = this.GearManager.ActiveWeapon;
         }
 
         public void CheckForRequiredGear()
