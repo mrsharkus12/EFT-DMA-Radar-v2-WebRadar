@@ -5,7 +5,8 @@ namespace eft_dma_radar
     public class GearManager
     {
         private HashSet<string> _slotsToSkip;
-        private static readonly HashSet<string> SLOTS_TO_SKIP = new HashSet<string> { "SecuredContainer", "Dogtag", "Compass", "ArmBand"};
+        // private static readonly HashSet<string> SLOTS_TO_SKIP = new HashSet<string> { "SecuredContainer", "Dogtag", "Compass", "ArmBand"};
+        private static readonly HashSet<string> SLOTS_TO_SKIP = new HashSet<string> {"Dogtag", "Compass"};
         private static readonly HashSet<string> SLOTS_TO_SKIP_PVE = new HashSet<string> { "SecuredContainer", "Compass", "ArmBand" };
         private static readonly HashSet<string> THERMAL_IDS = new HashSet<string> { "6478641c19d732620e045e17", "609bab8b455afd752b2e6138", "5c110624d174af029e69734c", "63fc44e2429a8a166c7f61e6", "5d1b5e94d7ad1a2b865a96b0", "606f2696f2cb2e02a42aceb1", "5a1eaa87fcdbcb001865f75e" };
         private static readonly HashSet<string> NVG_IDS = new HashSet<string> { "5b3b6e495acfc4330140bd88", "5a7c74b3e899ef0014332c29", "5c066e3a0db834001b7353f0", "5c0696830db834001d23f5da", "5c0558060db834001b735271", "57235b6f24597759bf5a30f1" };
@@ -21,7 +22,10 @@ namespace eft_dma_radar
             {"SecondPrimaryWeapon", "Secondary"},
             {"Holster", "Holster"},
             {"Scabbard", "Sheath"},
-            {"Earpiece", "Earpiece"}
+            {"Earpiece", "Earpiece"},
+            {"Eyewear", "Eyewear"},
+            {"SecuredContainer", "Pouch"},
+            {"ArmBand", "Armband"}
         };
 
         public static string GetGearSlotName(string key) => GEAR_SLOT_NAMES.TryGetValue(key, out var value) ? value : "n/a";
